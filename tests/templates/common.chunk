@@ -1,0 +1,13 @@
+
+float add (float a, float b, inout float out) {
+    out = a + b;
+}
+vec2 add (vec2 a, vec2 b, inout vec2 out) {
+    out = a + b;
+}
+vec3 add (vec3 a, vec3 b, inout vec3 out) {
+    out = a + b;
+}
+vec4 add (vec4 a, vec4 b, inout vec4 out) {
+    out = a + b;
+}

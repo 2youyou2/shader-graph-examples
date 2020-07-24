@@ -1,0 +1,111 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      properties: &props
+        {{properties_mtl}}
+  - name: transparent
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+  - name: add
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: &r1 { cullMode: none }
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one
+      properties: *props
+  - name: alpha-blend
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+}%
+
+{{chunks}}
+
+CCProgram properties %{
+  uniform Properties {
+    {{properties}}
+  };
+
+  {{properties_sampler}}
+}%
+
+CCProgram unlit-vs %{
+  precision highp float;
+  #include <input>
+  #include <cc-global>
+  #include <cc-local-batch>
+  #include <properties>
+
+  {{vs_chunks}}
+
+  vec4 vert () {
+    vec4 position;
+    CCVertInput(position);
+
+    mat4 matWorld;
+    CCGetWorldMatrix(matWorld);
+
+    
+
+
+    position = ;
+
+    return cc_matProj * (cc_matView * matWorld) * position;
+  }
+}%
+
+CCProgram unlit-fs %{
+  precision mediump float;
+  #include <output>
+  #include <properties>
+  
+  {{fs_chunks}}
+
+  vec4 frag () {
+    vec4 o = vec4(1.);
+
+    
+
+    float var_9 = 0;
+    float var_14 = 1;
+    
+    add(var_9, var_14, var_12);
+
+    o.rgb *= var_7;
+    o.a *= var_12;
+
+    return CCFragOutput(o);
+  }
+}%

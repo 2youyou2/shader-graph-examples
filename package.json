@@ -1,0 +1,9 @@
+{
+  "name": "shader-graph",
+  "type": "3d",
+  "uuid": "f72fc9ce-4b44-4055-8762-2aa47571a515",
+  "devDependencies": {
+    "@types/node": "^14.0.24"
+  },
+  "version": "1.1.1"
+}
