@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const base_1 = require("../../../base");
+class BooleanNode extends base_1.ShaderNode {
+    constructor(data) {
+        super(data);
+    }
+    generateCode() {
+        return `vec4 ${this.getOutputVarName(0)} = vec4(${this.getInputValue(0)}, ${this.getInputValue(1)}, ${this.getInputValue(2)}, ${this.getInputValue(3)});`;
+    }
+}
+exports.default = BooleanNode;
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiQ29sb3JOb2RlLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vLi4vLi4vLi4vc3JjL25vZGVzL2lucHV0L2Jhc2ljL0NvbG9yTm9kZS50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOztBQUFBLHdDQUF1RTtBQUV2RSxNQUFxQixXQUFZLFNBQVEsaUJBQVU7SUFDL0MsWUFBWSxJQUFTO1FBQ2pCLEtBQUssQ0FBQyxJQUFJLENBQUMsQ0FBQztJQUNoQixDQUFDO0lBRUQsWUFBWTtRQUNSLE9BQU8sUUFBUSxJQUFJLENBQUMsZ0JBQWdCLENBQUMsQ0FBQyxDQUFDLFdBQVcsSUFBSSxDQUFDLGFBQWEsQ0FBQyxDQUFDLENBQUMsS0FBSyxJQUFJLENBQUMsYUFBYSxDQUFDLENBQUMsQ0FBQyxLQUFLLElBQUksQ0FBQyxhQUFhLENBQUMsQ0FBQyxDQUFDLEtBQUssSUFBSSxDQUFDLGFBQWEsQ0FBQyxDQUFDLENBQUMsSUFBSSxDQUFDO0lBQzlKLENBQUM7Q0FDSjtBQVJELDhCQVFDIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgU2hhZGVyTm9kZSwgU2hhZGVyU2xvdFR5cGUsIFNoYWRlclNsb3QgfSBmcm9tIFwiLi4vLi4vLi4vYmFzZVwiO1xyXG5cclxuZXhwb3J0IGRlZmF1bHQgY2xhc3MgQm9vbGVhbk5vZGUgZXh0ZW5kcyBTaGFkZXJOb2RlIHtcclxuICAgIGNvbnN0cnVjdG9yKGRhdGE6IGFueSkge1xyXG4gICAgICAgIHN1cGVyKGRhdGEpO1xyXG4gICAgfVxyXG5cclxuICAgIGdlbmVyYXRlQ29kZSAoKSB7XHJcbiAgICAgICAgcmV0dXJuIGB2ZWM0ICR7dGhpcy5nZXRPdXRwdXRWYXJOYW1lKDApfSA9IHZlYzQoJHt0aGlzLmdldElucHV0VmFsdWUoMCl9LCAke3RoaXMuZ2V0SW5wdXRWYWx1ZSgxKX0sICR7dGhpcy5nZXRJbnB1dFZhbHVlKDIpfSwgJHt0aGlzLmdldElucHV0VmFsdWUoMyl9KTtgO1xyXG4gICAgfVxyXG59XHJcblxyXG4iXX0=

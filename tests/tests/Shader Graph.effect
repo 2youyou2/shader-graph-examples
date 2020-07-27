@@ -51,7 +51,19 @@ CCEffect %{
       properties: *props
 }%
 
-{{chunks}}
+
+
+CCProgram shader_graph_common %{
+
+void randomRange (vec2 seed, float min, float max, out float out) {
+    float randomno =  frac(sin(dot(seed, vec2(12.9898, 78.233)))*43758.5453);
+    out = lerp(Min, Max, randomno);
+}
+
+#define saturate(Value) clamp(Value, 0., 1.)
+
+}%
+
 
 CCProgram properties %{
   uniform Properties {
@@ -68,7 +80,9 @@ CCProgram unlit-vs %{
   #include <cc-local-batch>
   #include <properties>
 
-  {{vs_chunks}}
+  
+        #include<shader_graph_common>
+        
 
   vec4 vert () {
     vec4 position;
@@ -91,7 +105,9 @@ CCProgram unlit-fs %{
   #include <output>
   #include <properties>
   
-  {{fs_chunks}}
+  
+        #include<shader_graph_common>
+        
 
   vec4 frag () {
     vec4 o = vec4(1.);
@@ -101,7 +117,7 @@ CCProgram unlit-fs %{
     float var_9 = 0;
     float var_14 = 1;
     
-    add(var_9, var_14, var_12);
+    var_12 = var_9 + var_14;
 
     o.rgb *= var_7;
     o.a *= var_12;

@@ -1,14 +1,24 @@
 import { ShaderNode } from "../base";
+import globby from 'globby';
+import path from 'fire-path';
 
-export { Vector1Node } from './input/basic/Vector1Node'
-export { UnlitMasterNode } from './master/UnlitMasterNode'
-export { AddNode } from './math/basic/AddNode';
+
+let nodePaths = globby.sync([
+    path.join(__dirname, './**').replace(/\\/g, '/'), 
+    path.join(__dirname, '!./index.*').replace(/\\/g, '/'), 
+])
+let nodes = {};
+for (let i = 0; i < nodePaths.length; i++) {
+    let nodePath = nodePaths[i];
+    let nodeName = path.basenameNoExt(nodePath);
+    nodes[nodeName] = require(nodePath).default;
+}
 
 export function createNode (data: any) {
     let type = data.typeInfo;
     let name = type.fullName;
     name = name.replace('UnityEditor.ShaderGraph.', '');
 
-    let ctor = module.exports[name] || ShaderNode;
+    let ctor = nodes[name] || ShaderNode;
     return ctor && new ctor(data);
 }

@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { MasterNode } from "./MasterNode";
+import MasterNode from "./MasterNode";
 
-export class UnlitMasterNode extends MasterNode {
+export default class UnlitMasterNode extends MasterNode {
     vsSlotIndices = [0, 1, 2];
     fsSlotIndices = [3, 4, 5];
 

@@ -1,7 +1,7 @@
 import { ShaderPropery, ShaderNode, ShaderEdge, resetGlobalShaderSlotID, ShaderSlotType } from "./base";
 import { getJsonObject } from "./utils";
 import { createNode } from "./nodes";
-import { MasterNode } from "./nodes/master/MasterNode";
+import MasterNode from "./nodes/master/MasterNode";
 import fs from "fs";
 
 export class ShaderGraph {
@@ -62,10 +62,10 @@ export class ShaderGraph {
             return;
         }
 
-        for (let i = 0; i < nodes.length; i++) {
-            let node = nodes[i];
-            let code = node.generateCode();
-        }
+        // for (let i = 0; i < nodes.length; i++) {
+        //     let node = nodes[i];
+        //     let code = node.generateCode();
+        // }
 
         let code = masterNode.generateCode();
         return code;

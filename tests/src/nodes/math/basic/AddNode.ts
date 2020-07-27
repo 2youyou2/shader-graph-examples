@@ -1,12 +1,8 @@
 import { ShaderNode, ShaderSlotType, ShaderSlot } from "../../../base";
 
-export class AddNode extends ShaderNode {
-    constructor(data: any) {
-        super(data);
-    }
-
+export default class AddNode extends ShaderNode {
     generateCode () {
-        return `add(${this.getInputValue(0)}, ${this.getInputValue(1)}, ${this.getOutputVarName(0)});`;
+        return `${this.getOutputVarName(0)} = ${this.getInputValue(0)} + ${this.getInputValue(1)};`;
     }
 }
 

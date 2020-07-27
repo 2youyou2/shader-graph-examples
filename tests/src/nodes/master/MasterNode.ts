@@ -1,5 +1,6 @@
 import { ShaderNode, ShaderSlot } from "../../base";
 import fs from 'fs';
+import path from 'path';
 
 function findConnectNodes (slot: ShaderSlot, nodes: ShaderNode[]) {
     if (!slot.connectSlot) return;
@@ -16,7 +17,7 @@ function findConnectNodes (slot: ShaderSlot, nodes: ShaderNode[]) {
     }
 }
 
-export class MasterNode extends ShaderNode {
+export default class MasterNode extends ShaderNode {
     vsSlotIndices: number[] = [];
     fsSlotIndices: number[] = [];
 
@@ -60,8 +61,19 @@ export class MasterNode extends ShaderNode {
     generateCode () {
         let code = fs.readFileSync(this.templatePath, 'utf-8');
 
+        let commonChunk = fs.readFileSync(path.join(__dirname, '../../../templates/chunks/common.chunk'), 'utf-8');
+
         const vsCode = this.generateVsCode();
         const fsCode = this.generateFsCode();
+
+        code = code.replace('{{chunks}}', commonChunk);
+
+        let chunkIncludes = `
+  #include<shader_graph_common>
+        `;
+
+        code = code.replace('{{vs_chunks}}', chunkIncludes);
+        code = code.replace('{{fs_chunks}}', chunkIncludes);
 
         code = code.replace('{{vs}}', vsCode);
         code = code.replace('{{fs}}', fsCode);
