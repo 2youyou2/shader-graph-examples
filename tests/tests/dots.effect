@@ -119,9 +119,31 @@ CCProgram unlit-fs %{
 
     
 
-    var_6 = Color
+    
+    vec2 var_16 = vec2(0, 0) * var_12 + vec2(0, 0);
+    float var_35 = var_16.r;
+    float var_36 = var_16.g;
+    
+    float var_59 = var_16.r;
+    float var_60 = var_16.g;
+    
+    var_33 = mod(var_36, vec4(2, 2, 1, 1));
+    var_57 = mod(var_59, vec4(2, 2, 1, 1));
+    
+    var_24 = step(vec4(1, 1, 1, 1), var_33);
+    
+    var_53 = step(vec4(1, 1, 1, 1), var_57);
+    var_30 = var_39 * var_24;
+    var_19 = var_54 * var_53;
+    var_27 = var_35 + var_30;
+    var_47 = var_60 + var_19;
+    vec2 var_50 = var_27;
+    var_21 = frac(var_50);
+    
+    
+    ellipse(var_21, var_44, var_44, var_43);
 
-    o.rgb *= var_6;
+    o.rgb *= var_10;
     o.a *= 1.;
 
     return CCFragOutput(o);

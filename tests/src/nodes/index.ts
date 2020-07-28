@@ -19,6 +19,10 @@ export function createNode (data: any) {
     let name = type.fullName;
     name = name.replace('UnityEditor.ShaderGraph.', '');
 
-    let ctor = nodes[name] || ShaderNode;
+    let ctor = nodes[name]; 
+    if (!ctor) {
+        console.warn(`Can not find Node with Name [${name}]`)
+        ctor = ShaderNode
+    }
     return ctor && new ctor(data);
 }

@@ -3,7 +3,7 @@ import { emit } from "process";
 
 export class ShaderPropery {
     type = {};
-    data = {}
+    data: any = {}
     constructor (obj: any) {
         this.type = obj.type;
         this.data = getJsonObject(obj.JSONnodeData);
@@ -56,6 +56,9 @@ export class ShaderNode {
         return this.slots.filter(s => s.type === ShaderSlotType.Input);
     }
 
+    getOutputSlotWithSlotName (name) {
+        return this.outputSlots.find(s => s.data.m_DisplayName === name);
+    }
     getOutputVarName (idx) {
         return this.outputSlots[idx].varName;
     }
@@ -110,7 +113,20 @@ export class ShaderSlot {
             if (this.node?.isMasterNode) {
                 return null;
             }
-            return this.data.m_Value;
+            let value = this.data.m_Value;
+            if (typeof value === 'object') {
+                if (value.w !== undefined) {
+                    return `vec4(${value.x}, ${value.y}, ${value.z}, ${value.w})`;
+                }
+                else if (value.z !== undefined) {
+                    return `vec3(${value.x}, ${value.y}, ${value.z})`;
+                }
+                else if (value.y !== undefined) {
+                    return `vec2(${value.x}, ${value.y})`;
+                }
+                return value;
+            }
+            return value;
         }
 
         return this.connectSlot.varName;

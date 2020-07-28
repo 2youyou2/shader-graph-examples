@@ -1,6 +1,6 @@
 import { ShaderNode, ShaderSlotType, ShaderSlot } from "../../../base";
 
-export default class BooleanNode extends ShaderNode {
+export default class ColorNode extends ShaderNode {
     constructor(data: any) {
         super(data);
     }

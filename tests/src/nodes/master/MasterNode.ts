@@ -41,7 +41,9 @@ export default class MasterNode extends ShaderNode {
 
         let nodes = this.getConnectNodes(this.vsSlotIndices);
         nodes.forEach(node => {
-            code.push('    ' + node.generateCode());
+            node.generateCode().split('\n').forEach(c => {
+                code.push('    ' + c);
+            });
         })
 
         return code.join('\n');
@@ -52,7 +54,9 @@ export default class MasterNode extends ShaderNode {
 
         let nodes = this.getConnectNodes(this.fsSlotIndices);
         nodes.forEach(node => {
-            code.push('    ' + node.generateCode());
+            node.generateCode().split('\n').forEach(c => {
+                code.push('    ' + c);
+            });
         })
 
         return code.join('\n');

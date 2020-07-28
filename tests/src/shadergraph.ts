@@ -2,24 +2,38 @@ import { ShaderPropery, ShaderNode, ShaderEdge, resetGlobalShaderSlotID, ShaderS
 import { getJsonObject } from "./utils";
 import { createNode } from "./nodes";
 import MasterNode from "./nodes/master/MasterNode";
-import fs from "fs";
+import SubGraphNode from "./nodes/subgraph/SubGraphNode";
+
+import globby from 'globby'
+import fs from 'fs'
+import path from 'path'
+import PropertyNode from "./nodes/input/PropertyNode";
 
 export class ShaderGraph {
-    static decode (contentStr: string) {
+    static subgraphPath = ''
+
+    static searchNodes (graphPath: string) {
+        let contentStr = fs.readFileSync(graphPath, 'utf-8');
         let content = getJsonObject(contentStr);
         if (!content) return;
 
-        resetGlobalShaderSlotID();
-
+        let properties: ShaderPropery[] = content.m_SerializedProperties.map(d => new ShaderPropery(d));
         let nodeMap: Map<string, ShaderNode> = new Map;
 
-        let properties: ShaderPropery[] = content.m_SerializedProperties.map(d => new ShaderPropery(d));
         let nodes: ShaderNode[] = content.m_SerializableNodes.map(d => {
             let node = createNode(d);
+
+            if (node instanceof PropertyNode) {
+                node.searchProperties(properties);
+            }
+
             nodeMap.set(node.uuid, node);
             return node;
         });
-        let edges: ShaderEdge[] = content.m_SerializableEdges.map(d => new ShaderEdge(d))
+
+        let edges: ShaderEdge[] = content.m_SerializableEdges.map(d => {
+            return new ShaderEdge(d)
+        })
 
         for (let i = 0; i < edges.length; i++) {
             let edge = edges[i];
@@ -54,7 +68,26 @@ export class ShaderGraph {
             }
         }
 
-        nodes.sort((a, b) => b.priority - a.priority);
+        return {
+            properties,
+            nodeMap,
+            nodes,
+            edges
+        }
+    }
+
+    static decode (path: string) {
+        
+        resetGlobalShaderSlotID();
+
+        let res = this.searchNodes(path);
+        if (!res) {
+            return;
+        }
+
+        let { properties, nodeMap, nodes, edges } = res;
+
+        // nodes.sort((a, b) => b.priority - a.priority);
 
         let masterNode = nodes.find(n => n instanceof MasterNode);
         if (!masterNode) {

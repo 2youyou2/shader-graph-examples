@@ -7,6 +7,11 @@ void randomRange (vec2 seed, float min, float max, out float out) {
     out = lerp(Min, Max, randomno);
 }
 
+void ellipse (vec2 uv, float width, float height, out float out) {
+    float d = length((uv * 2 - 1) / vec2(width, height));
+    out = saturate((1 - d) / fwidth(d));
+}
+
 #define saturate(Value) clamp(Value, 0., 1.)
 
 }%
