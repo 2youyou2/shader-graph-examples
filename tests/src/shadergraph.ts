@@ -60,11 +60,11 @@ export class ShaderGraph {
 
             if (inputNodeSlot) {
                 inputNodeSlot.connectSlot = outputNodeSlot;
-                inputNodeSlot.type = ShaderSlotType.Input;
+                // inputNodeSlot.type = ShaderSlotType.Input;
             }
             if (outputNodeSlot) {
                 outputNodeSlot.connectSlot = inputNodeSlot;
-                outputNodeSlot.type = ShaderSlotType.Output;
+                // outputNodeSlot.type = ShaderSlotType.Output;
             }
         }
 
@@ -87,13 +87,19 @@ export class ShaderGraph {
 
         let { properties, nodeMap, nodes, edges } = res;
 
-        // nodes.sort((a, b) => b.priority - a.priority);
+        nodes.sort((a, b) => b.priority - a.priority);
+
+        nodes.forEach(node => {
+            node.calcConcretePrecision();
+        })
 
         let masterNode = nodes.find(n => n instanceof MasterNode);
         if (!masterNode) {
             console.error('Can not find master node.');
             return;
         }
+
+        (masterNode as MasterNode).properties = properties;
 
         // for (let i = 0; i < nodes.length; i++) {
         //     let node = nodes[i];

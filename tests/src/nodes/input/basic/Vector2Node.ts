@@ -1,12 +1,12 @@
 import { ShaderNode, ShaderSlotType, ShaderSlot } from "../../../base";
 
 export default class Vector2Node extends ShaderNode {
-    constructor(data: any) {
-        super(data);
-    }
+    fixedConcretePrecision = true;
 
     generateCode () {
-        return `vec2 ${this.getOutputVarName(0)} = ${this.getInputValue(0)};`;
+        let x = this.getInputValue(0);
+        let y = this.getInputValue(1);
+        return `vec2 ${this.getOutputVarName(0)} = vec2(${x}, ${y});`;
     }
 }
 

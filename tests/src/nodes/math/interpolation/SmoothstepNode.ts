@@ -5,7 +5,7 @@ export default class SmoothstepNode extends ShaderNode {
         let Edge1 = this.getInputValue(0);
         let Edge2 = this.getInputValue(1);
         let In    = this.getInputValue(2);
-        return `${this.getOutputVarName(0)} = smoothstep(${Edge1}, ${Edge2}, ${In});`;
+        return `${this.getOutputVarDefine(0)} = smoothstep(${Edge1}, ${Edge2}, ${In});`;
     }
 }
 

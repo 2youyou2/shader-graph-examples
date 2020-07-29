@@ -5,7 +5,7 @@ export default class SaturateNode extends ShaderNode {
         let In = this.getInputValue(0);
         let InMinMax = this.getInputValue(0);
         let OutMinMax = this.getInputValue(0);
-        return `${this.getOutputVarName(0)} = ${OutMinMax}.x + (${In} - ${InMinMax}.x) * (${OutMinMax}.y - ${OutMinMax}.x) / (${InMinMax}.y - ${InMinMax}.x);`;
+        return `${this.getOutputVarDefine(0)} = ${OutMinMax}.x + (${In} - ${InMinMax}.x) * (${OutMinMax}.y - ${OutMinMax}.x) / (${InMinMax}.y - ${InMinMax}.x);`;
     }
 }
 

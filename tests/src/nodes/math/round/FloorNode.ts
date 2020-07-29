@@ -3,7 +3,7 @@ import { ShaderNode, ShaderSlotType, ShaderSlot } from "../../../base";
 export default class FloorNode extends ShaderNode {
     generateCode () {
         let In = this.getInputValue(0);
-        return `${this.getOutputVarName(0)} = floor(${In});`;
+        return `${this.getOutputVarDefine(0)} = floor(${In});`;
     }
 }
 

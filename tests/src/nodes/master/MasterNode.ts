@@ -1,4 +1,4 @@
-import { ShaderNode, ShaderSlot } from "../../base";
+import { ShaderNode, ShaderSlot, ShaderPropery } from "../../base";
 import fs from 'fs';
 import path from 'path';
 
@@ -18,12 +18,16 @@ function findConnectNodes (slot: ShaderSlot, nodes: ShaderNode[]) {
 }
 
 export default class MasterNode extends ShaderNode {
+
     vsSlotIndices: number[] = [];
     fsSlotIndices: number[] = [];
 
     templatePath = '';
 
     isMasterNode = true;
+    fixedConcretePrecision = true;
+
+    properties: ShaderPropery[] = [];
 
     getConnectNodes (slotIndices: number[]) {
         let inputSlots = slotIndices.map(i => this.slots[i]);
@@ -62,6 +66,57 @@ export default class MasterNode extends ShaderNode {
         return code.join('\n');
     }
 
+    generatePropertiesCode () {
+        let uniform = '\n';
+        let mtl = '\n'
+        let uniformSampler = '';
+
+        let properties = this.properties;
+        properties.sort((a, b) => {
+            return b.concretePrecision - a.concretePrecision;
+        })
+
+        properties.forEach(p => {
+            let precision = '';
+            let mtlValue = '';
+
+            let value = p.defaultValue;
+            let isColor = value.r !== undefined;
+            let x = isColor ? value.r : value.x;
+            let y = isColor ? value.g : value.y;
+            let z = isColor ? value.b : value.z;
+            let w = isColor ? value.a : value.w;
+
+            if (p.concretePrecision === 1) {
+                precision = 'float';
+                mtlValue = `${x}`
+            }
+            else if (p.concretePrecision === 2) {
+                precision = 'vec2';
+                mtlValue = `[${x}, ${y}]`
+            }
+            else if (p.concretePrecision === 3) {
+                precision = 'vec4';
+                mtlValue = `[${x}, ${y}, ${z}, 0]`
+            }
+            else if (p.concretePrecision === 4) {
+                precision = 'vec4';
+                mtlValue = `[${x}, ${y}, ${z},  ${w}]`
+            }
+
+            let editorStr = isColor ? `, editor: { type: color }` : ''
+
+            uniform += `    ${precision} ${p.name};\n`;
+            mtl += `        ${p.name}: { value: ${mtlValue} ${editorStr}}\n`
+        })
+
+        return {
+            uniform,
+            uniformSampler,
+            mtl,
+        };
+    }
+
     generateCode () {
         let code = fs.readFileSync(this.templatePath, 'utf-8');
 
@@ -73,7 +128,7 @@ export default class MasterNode extends ShaderNode {
         code = code.replace('{{chunks}}', commonChunk);
 
         let chunkIncludes = `
-  #include<shader_graph_common>
+  #include <shader_graph_common>
         `;
 
         code = code.replace('{{vs_chunks}}', chunkIncludes);
@@ -81,6 +136,11 @@ export default class MasterNode extends ShaderNode {
 
         code = code.replace('{{vs}}', vsCode);
         code = code.replace('{{fs}}', fsCode);
+
+        let props = this.generatePropertiesCode();
+        code = code.replace('{{properties}}', props.uniform);
+        code = code.replace('{{properties_sampler}}', props.uniformSampler);
+        code = code.replace('{{properties_mtl}}', props.mtl);
 
         this.inputSlots.forEach((slot, index) => {
             var tempName = `slot_${index}`;

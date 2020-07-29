@@ -79,7 +79,7 @@ CCProgram unlit-vs %{
 
     {{vs}}
 
-    position = {{slot_0}};
+    position = {{slot_0 = position}};
 
     return cc_matProj * (cc_matView * matWorld) * position;
   }

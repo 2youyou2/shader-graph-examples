@@ -5,7 +5,7 @@ export default class ClampNode extends ShaderNode {
         let In = this.getInputValue(0);
         let min = this.getInputValue(1);
         let max = this.getInputValue(2);
-        return `${this.getOutputVarName(0)} = clamp(${In}, ${min}, ${max});`;
+        return `${this.getOutputVarDefine(0)} = clamp(${In}, ${min}, ${max});`;
     }
 }
 
