@@ -10,6 +10,9 @@ function findConnectNodes (slot: ShaderSlot, nodes: ShaderNode[]) {
         if (!nodes.includes(connectNode)) {
             nodes.push(connectNode);
         }
+        else {
+            return;
+        }
 
         connectNode.inputSlots.forEach(slot => {
             findConnectNodes(slot, nodes);

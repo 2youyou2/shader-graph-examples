@@ -1,5 +1,6 @@
 import { getJsonObject, getFloatString } from "./utils";
 import { emit } from "process";
+import SubGraphNode from "./nodes/subgraph/SubGraphNode";
 
 export class ShaderPropery {
     type = {};
@@ -53,6 +54,8 @@ export class ShaderNode {
     isMasterNode = false;
     fixedConcretePrecision = false;
 
+    // subgraphNode: SubGraphNode | null = null;
+
     constructor (data: any) {
         this.type = data.typeInfo;
         this.data = getJsonObject(data.JSONnodeData);
@@ -103,8 +106,11 @@ export class ShaderNode {
         return this.slots.filter(s => s.type === ShaderSlotType.Input);
     }
 
+    getSlotWithSlotName (name) {
+        return this.slots.find(s => s.displayName === name);
+    }
     getOutputSlotWithSlotName (name) {
-        return this.outputSlots.find(s => s.data.m_DisplayName === name);
+        return this.outputSlots.find(s => s.displayName === name);
     }
     getOutputVarName (idx) {
         return this.outputSlots[idx].varName;
@@ -138,9 +144,10 @@ export class ShaderSlot {
     id = 0;
 
     globalID = 0;
+    displayName = '';
 
-    connectSlot: ShaderSlot | null | undefined = null;
-    node: ShaderNode | null | undefined = null;
+    connectSlot: ShaderSlot | undefined = undefined;
+    node: ShaderNode | undefined = undefined;
 
     type = ShaderSlotType.Input;
 
@@ -154,6 +161,7 @@ export class ShaderSlot {
 
         this.id = this.data.m_Id;
         this.globalID = _GlobalShaderSlotID_++;
+        this.displayName = this.data.m_DisplayName;
     }
 
     get varName () {
@@ -178,6 +186,30 @@ export class ShaderSlot {
             precision += ' ';
         }
         return precision + this.varName;
+    }
+
+    get defaultValue () {
+        let defaultValue = this.data.m_Value;
+        
+        let x = getFloatString(defaultValue.x);
+        let y = getFloatString(defaultValue.y);
+        let z = getFloatString(defaultValue.z);
+        let w = getFloatString(defaultValue.w);
+
+        let result = defaultValue;
+        if (typeof defaultValue === 'object') {
+            if (defaultValue.w !== undefined) {
+                result = `vec4(${x}, ${y}, ${z}, ${w})`;
+            }
+            else if (defaultValue.z !== undefined) {
+                result = `vec3(${x}, ${y}, ${z})`;
+            }
+            else if (defaultValue.y !== undefined) {
+                result = `vec2(${x}, ${y})`;
+            }
+        }
+
+        return result;
     }
 
     get slotValue () {

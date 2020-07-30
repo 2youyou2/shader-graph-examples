@@ -8,6 +8,7 @@ import globby from 'globby'
 import fs from 'fs'
 import path from 'path'
 import PropertyNode from "./nodes/input/PropertyNode";
+import SubGraphOutputNode from "./nodes/subgraph/SubGraphOutputNode";
 
 export class ShaderGraph {
     static subgraphPath = ''
@@ -42,6 +43,10 @@ export class ShaderGraph {
 
             let inputNode = nodeMap.get(inputSlot.nodeUuid);
             let outputNode = nodeMap.get(outputSlot.nodeUuid);
+
+            if (outputNode instanceof SubGraphNode) {
+                outputNode = outputNode.excahngeSubGraphOutNode(outputSlot);
+            }
 
             if (!inputNode) {
                 console.warn(`Can not find input [${inputSlot.nodeUuid}] for edge.`)

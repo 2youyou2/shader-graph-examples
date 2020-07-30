@@ -86,6 +86,10 @@ CCProgram unlit-vs %{
 }%
 
 CCProgram unlit-fs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+  
   precision mediump float;
   #include <output>
   #include <properties>

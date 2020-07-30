@@ -7,10 +7,14 @@ float randomRange (vec2 seed, float min, float max) {
     return lerp(min, max, randomno);
 }
 
-// float ellipse (vec2 uv, float width, float height) {
-//     float d = length((uv * 2 - 1) / vec2(width, height));
-//     return saturate((1 - d) / fwidth(d));
-// }
+float ellipse (vec2 uv, float width, float height) {
+    #if USE_standard_derivatives
+        float d = length((uv * 2. - 1.) / vec2(width, height));
+        return saturate((1. - d) / fwidth(d));
+    #else
+        return 1.;
+    #endif
+}
 
 #define saturate(Value) clamp(Value, 0., 1.)
 
