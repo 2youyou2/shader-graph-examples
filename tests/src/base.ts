@@ -291,16 +291,23 @@ export class ShaderSlot {
                     }
                 }
                 else {
-                    let dif = selfConcretePresition - valueConretePresition;
-                    if (dif === 1) {
-                        value += `, ${x}`;
+                    if (valueConretePresition !== 1) {
+                        let dif = selfConcretePresition - valueConretePresition;
+                        let difValues: any[] = []
+                        for (let i = 0; i < dif; i++) {
+                            difValues.push('0.');
+                        }
+                        value += ', ' + difValues.join(', ')
                     }
-                    else if (dif === 2) {
-                        value += `, ${x}, ${y}`;
-                    }
-                    else if (dif === 3) {
-                        value += `, ${x}, ${y}, ${z}`;
-                    }
+                    // if (dif === 1) {
+                    //     value += `, ${x}`;
+                    // }
+                    // else if (dif === 2) {
+                    //     value += `, ${x}, ${y}`;
+                    // }
+                    // else if (dif === 3) {
+                    //     value += `, ${x}, ${y}, ${z}`;
+                    // }
                 }
             }
         }

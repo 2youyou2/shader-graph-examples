@@ -165,7 +165,7 @@ CCProgram unlit-fs %{
     vec2 var_21 = fract(vec2(var_50));
     float var_43 = ellipse(vec2(var_21), var_64, var_64);
 
-    o.rgb *= vec3(var_43, 0.7353569269180298, 0.7353569269180298);
+    o.rgb *= vec3(var_43);
     o.a *= 1.;
 
     return CCFragOutput(o);

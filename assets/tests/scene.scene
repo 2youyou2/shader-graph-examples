@@ -194,7 +194,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Cube",
+    "_name": "simple",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -277,7 +277,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Cube",
+    "_name": "dots",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -289,6 +289,7 @@
         "__id__": 11
       }
     ],
+    "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 1.848,
