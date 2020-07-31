@@ -77,7 +77,8 @@ float ellipse (vec2 uv, float width, float height) {
 
 CCProgram properties %{
   uniform ShaderGraph_Properties {
-    vec4 test;
+    
+    vec4 empty_value;
 
   };
 
@@ -99,6 +100,9 @@ CCProgram unlit-vs %{
   #include <shader_graph_common>
         
 
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+
   vec4 vert () {
     vec4 position;
     CCVertInput(position);
@@ -110,6 +114,8 @@ CCProgram unlit-vs %{
 
 
     position = position;
+
+    v_uv = a_texCoord;
 
     return cc_matProj * (cc_matView * matWorld) * position;
   }
@@ -128,6 +134,8 @@ CCProgram unlit-fs %{
   #include <shader_graph_common>
         
 
+  in vec2 v_uv;
+
   vec4 frag () {
     vec4 o = vec4(1.);
 
@@ -138,7 +146,7 @@ CCProgram unlit-fs %{
     float var_8 = 0.5;
     float var_9 = 1.;
     
-    vec2 var_16 = vec2(0., 0.) * vec2(var_7) + vec2(0., 0.);
+    vec2 var_16 = v_uv * vec2(var_7) + vec2(0., 0.);
     float var_35 = vec4(var_16, 0., 0.).r;
     float var_36 = vec4(var_16, 0., 0.).g;
     float var_37 = vec4(var_16, 0., 0.).b;

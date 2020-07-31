@@ -112,6 +112,10 @@ export default class MasterNode extends ShaderNode {
             uniform += `    ${precision} ${p.name};\n`;
             mtl += `        ${p.name}: { value: ${mtlValue} ${editorStr}}\n`
         })
+        
+        if (properties.length === 0) {
+            uniform += '    vec4 empty_value;\n'
+        }
 
         return {
             uniform,
