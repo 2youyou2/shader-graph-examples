@@ -14,17 +14,21 @@ export default class SplitNode extends ShaderNode {
     generateCode () {
         let Value = this.getInputValue(0);
         let code = '';
-        if (this.getOutputSlotWithSlotName('R')) {
-            code += `float ${this.getOutputSlotWithSlotName('R')?.varName} = ${Value}.r;\n`;
+        let slotR = this.getOutputSlotWithSlotName('R');
+        let slotG = this.getOutputSlotWithSlotName('G');
+        let slotB = this.getOutputSlotWithSlotName('B');
+        let slotA = this.getOutputSlotWithSlotName('A');
+        if (slotR && slotR.connectSlot) {
+            code += `float ${slotR?.varName} = ${Value}.r;\n`;
         }
-        if (this.getOutputSlotWithSlotName('G')) {
-            code += `float ${this.getOutputSlotWithSlotName('G')?.varName} = ${Value}.g;\n`;
+        if (slotG && slotG.connectSlot) {
+            code += `float ${slotG?.varName} = ${Value}.g;\n`;
         }
-        if (this.getOutputSlotWithSlotName('B')) {
-            code += `float ${this.getOutputSlotWithSlotName('B')?.varName} = ${Value}.b;\n`;
+        if (slotB && slotB.connectSlot) {
+            code += `float ${slotB?.varName} = ${Value}.b;\n`;
         }
-        if (this.getOutputSlotWithSlotName('A')) {
-            code += `float ${this.getOutputSlotWithSlotName('A')?.varName} = ${Value}.a;\n`;
+        if (slotA && slotA.connectSlot) {
+            code += `float ${slotA?.varName} = ${Value}.a;\n`;
         }
         return code;
     }

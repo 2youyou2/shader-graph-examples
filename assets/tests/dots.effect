@@ -149,13 +149,9 @@ CCProgram unlit-fs %{
     vec2 var_16 = v_uv * vec2(var_7) + vec2(0., 0.);
     float var_35 = vec4(var_16, 0., 0.).r;
     float var_36 = vec4(var_16, 0., 0.).g;
-    float var_37 = vec4(var_16, 0., 0.).b;
-    float var_38 = vec4(var_16, 0., 0.).a;
     
     float var_59 = vec4(var_16, 0., 0.).r;
     float var_60 = vec4(var_16, 0., 0.).g;
-    float var_61 = vec4(var_16, 0., 0.).b;
-    float var_62 = vec4(var_16, 0., 0.).a;
     
     float var_33 = mod(var_36, 2.);
     float var_57 = mod(var_59, 2.);
