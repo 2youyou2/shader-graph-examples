@@ -140,6 +140,11 @@ export default class MasterNode extends ShaderNode {
         code = code.replace('{{vs}}', vsCode);
         code = code.replace('{{fs}}', fsCode);
 
+        if (!this.properties || this.properties.length === 0) {
+            code = code.replace(/properties: &props/g, '');
+            code = code.replace(/properties: \*props/g, '');
+        }
+
         let props = this.generatePropertiesCode();
         code = code.replace('{{properties}}', props.uniform);
         code = code.replace('{{properties_sampler}}', props.uniformSampler);

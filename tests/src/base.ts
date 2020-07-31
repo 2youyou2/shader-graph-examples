@@ -1,6 +1,4 @@
 import { getJsonObject, getFloatString } from "./utils";
-import { emit } from "process";
-import SubGraphNode from "./nodes/subgraph/SubGraphNode";
 
 export class ShaderPropery {
     type = {};
@@ -22,7 +20,7 @@ export class ShaderPropery {
 
     get concretePrecision () {
         let concretePrecision = 1;
-            
+
         let value = this.defaultValue;
         if (typeof value === 'object') {
             if (value.w !== undefined || value.r !== undefined) {
@@ -146,7 +144,17 @@ export class ShaderSlot {
     globalID = 0;
     displayName = '';
 
-    connectSlot: ShaderSlot | undefined = undefined;
+    get connectSlot () {
+        return this.connectSlots[0];
+    };
+    set connectSlot (v) {
+        this.connectSlots.length = 0;
+        if (v) {
+            this.connectSlots[0] = v;
+        }
+    }
+    connectSlots: ShaderSlot[] = [];
+
     node: ShaderNode | undefined = undefined;
 
     type = ShaderSlotType.Input;
@@ -190,13 +198,13 @@ export class ShaderSlot {
 
     get defaultValue () {
         let defaultValue = this.data.m_Value;
-        
+
         let x = getFloatString(defaultValue.x);
         let y = getFloatString(defaultValue.y);
         let z = getFloatString(defaultValue.z);
         let w = getFloatString(defaultValue.w);
 
-        let result = defaultValue;
+        let result = getFloatString(defaultValue);
         if (typeof defaultValue === 'object') {
             if (defaultValue.w !== undefined) {
                 result = `vec4(${x}, ${y}, ${z}, ${w})`;
@@ -213,79 +221,98 @@ export class ShaderSlot {
     }
 
     get slotValue () {
-        let result;
         let valueConretePresition = this.defaultConcretePrecision;
+        let selfConcretePresition = this.concretePrecision;
         let defaultValue = this.data.m_Value;
-        
+
         let x = getFloatString(defaultValue.x);
         let y = getFloatString(defaultValue.y);
         let z = getFloatString(defaultValue.z);
         let w = getFloatString(defaultValue.w);
 
+        if (typeof defaultValue !== 'object') {
+            x = getFloatString(defaultValue);
+        }
+
+       
+        let result = '{{value}}';
+        if (selfConcretePresition === 2) {
+            result = `vec2({{value}})`
+        }
+        else if (selfConcretePresition === 3) {
+            result = `vec3({{value}})`
+        }
+        else if (selfConcretePresition === 4) {
+            result = `vec4({{value}})`
+        }
+        let value = '';
+
         if (!this.connectSlot) {
             if (this.node?.isMasterNode) {
                 return null;
             }
-            result = defaultValue;
-            if (typeof defaultValue === 'object') {
-                if (defaultValue.w !== undefined) {
-                    result = `vec4(${x}, ${y}, ${z}, ${w})`;
-                }
-                else if (defaultValue.z !== undefined) {
-                    result = `vec3(${x}, ${y}, ${z})`;
-                }
-                else if (defaultValue.y !== undefined) {
-                    result = `vec2(${x}, ${y})`;
-                }
-            }
-        }
-        else {
-            result = this.connectSlot.varName;
-            valueConretePresition = this.connectSlot.concretePrecision;
-        }
 
-        if (this.concretePrecision !== valueConretePresition) {
-            if (this.concretePrecision < valueConretePresition) {
-                if (this.concretePrecision === 1) {
-                    result += '.x';
+            if (typeof defaultValue === 'object') {
+                if (defaultValue.w !== undefined || defaultValue.a !== undefined) {
+                    valueConretePresition = 4;
                 }
-                else if (this.concretePrecision === 2) {
-                    result += '.xy';
+                else if (defaultValue.z !== undefined || defaultValue.b !== undefined) {
+                    valueConretePresition = 3;
                 }
-                else if (this.concretePrecision === 3) {
-                    result += '.xyz';
+                else if (defaultValue.y !== undefined || defaultValue.g !== undefined) {
+                    valueConretePresition = 2;
                 }
             }
             else {
-                let dif = this.concretePrecision - valueConretePresition;
-                let str = '';
-                if (dif === 1) {
-                    str += `${x}`;
-                }
-                else if (dif === 2) {
-                    str += `${x}, ${y}`;
-                }
-                else if (dif === 3) {
-                    str += `${x}, ${y}, ${z}`;
-                }
+                valueConretePresition = 1;
+            }
+            
+            let values = [x, y, z, w];
+            let concreteValues: any[] = [];
+            for (let i = 0; i < selfConcretePresition; i++) {
+                concreteValues.push(values[i] === undefined ? 0 : values[i]);
+            }
+            value = concreteValues.join(', ')
+        }
+        else {
+            valueConretePresition = this.connectSlot.concretePrecision;
 
-                if (this.concretePrecision === 2) {
-                    result = `vec2(${result}, ${str});`;
+            value = this.connectSlot.varName;
+            if (selfConcretePresition !== valueConretePresition) {
+                if (selfConcretePresition < valueConretePresition) {
+                    if (selfConcretePresition === 1) {
+                        value += '.x';
+                    }
+                    else if (selfConcretePresition === 2) {
+                        value += '.xy';
+                    }
+                    else if (selfConcretePresition === 3) {
+                        value += '.xyz';
+                    }
                 }
-                else if (this.concretePrecision === 3) {
-                    result = `vec3(${result}, ${str})`;
-                }
-                else if (this.concretePrecision === 4) {
-                    result = `vec4(${result}, ${str})`;
+                else {
+                    let dif = selfConcretePresition - valueConretePresition;
+                    if (dif === 1) {
+                        value += `, ${x}`;
+                    }
+                    else if (dif === 2) {
+                        value += `, ${x}, ${y}`;
+                    }
+                    else if (dif === 3) {
+                        value += `, ${x}, ${y}, ${z}`;
+                    }
                 }
             }
         }
+
+        result = result.replace('{{value}}', value);
+
         return result;
     }
 
     get defaultConcretePrecision () {
         let concretePrecision = 1;
-            
+
         let value = this.data.m_Value;
         if (typeof value === 'object') {
             if (value.w !== undefined) {
@@ -306,7 +333,7 @@ export class ShaderSlot {
     get concretePrecision () {
         if (this._concretePrecision === -1) {
             this._concretePrecision = 1;
-            
+
             let value = this.data.m_Value;
             if (typeof value === 'object') {
                 if (value.w !== undefined) {

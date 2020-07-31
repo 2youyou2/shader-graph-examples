@@ -2,6 +2,8 @@
 
 CCProgram shader_graph_common %{
 
+#define saturate(Value) clamp(Value, 0., 1.)
+
 float randomRange (vec2 seed, float min, float max) {
     float randomno = frac(sin(dot(seed, vec2(12.9898, 78.233)))*43758.5453);
     return lerp(min, max, randomno);
@@ -15,7 +17,5 @@ float ellipse (vec2 uv, float width, float height) {
         return 1.;
     #endif
 }
-
-#define saturate(Value) clamp(Value, 0., 1.)
 
 }%

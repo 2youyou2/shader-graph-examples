@@ -1,6 +1,16 @@
 import { ShaderNode } from "../../base";
 
 export default class SplitNode extends ShaderNode {
+    fixedConcretePrecision = true;
+
+    constructor (data) {
+        super(data);
+    }
+
+    calcConcretePrecision () {
+        super.calcConcretePrecision()
+    }
+
     generateCode () {
         let Value = this.getInputValue(0);
         let code = '';

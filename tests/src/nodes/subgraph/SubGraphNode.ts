@@ -43,47 +43,6 @@ export default class SubGraphNode extends ShaderNode {
 
         this.subgraphOutNode = subgraphOutNode;
 
-        // let outSlot = this.outputSlots[0];
-        // if (outSlot.data.m_DisplayName !== 'Out') {
-        //     console.warn(`SubGraphNode [${name}] last slot name is not Out, may be wrong.`)
-        // }
-
-        let inputSlots = this.inputSlots;
-
-        let propertyNodes = nodes.filter(n => n instanceof PropertyNode);
-        propertyNodes.forEach(node => {
-            let propertySlot = node.outputSlots[0];
-            let propertyName = propertySlot.displayName;
-            let inputSlotInSubGraph = propertySlot.connectSlot;
-            if (!inputSlotInSubGraph) return;
-            let inputSlot = inputSlots.find(slot => slot.displayName === propertyName);
-
-            if (inputSlot) {
-                let outputSlot = inputSlot.connectSlot;
-                if (outputSlot) {
-                    inputSlotInSubGraph.connectSlot = outputSlot;
-
-                    if (outputSlot.node) {
-                        inputSlotInSubGraph.node?.addDependency(outputSlot.node);
-                        //@ts-ignore
-                        outputSlot.node.setPriority(inputSlotInSubGraph.node.priority + 1);
-                    }
-                    //@ts-ignore
-                    inputSlot.connectSlot = null;
-                }
-                else {
-                    inputSlotInSubGraph.connectSlot = inputSlot;
-                    inputSlot.connectSlot = inputSlotInSubGraph;
-
-                    if (inputSlot.node) {
-                        inputSlotInSubGraph.node?.addDependency(this);
-                        //@ts-ignore
-                        this.setPriority(inputSlotInSubGraph.node.priority + 1);
-                    }
-                }
-            }
-
-        })
     }
 
     excahngeSubGraphOutNode (outputEdgeSlot: ShaderEdgeSlot) {
@@ -99,15 +58,56 @@ export default class SubGraphNode extends ShaderNode {
             //@ts-ignore
             outputEdgeSlot.nodeUuid = subgraphSlot.connectSlot.node?.uuid;
             if (outputNode && subgraphSlot) {
-                subgraphSlot.connectSlot = undefined;
+                subgraphSlot.connectSlots.length = 0;
             }
         }
 
         return outputNode;
     }
 
-    exchangeSubGraphInputNode (inputSlot: ShaderEdgeSlot) {
+    exchangeSubGraphInputNodes () {
+        let inputSlots = this.inputSlots;
 
+        let propertyNodes = this.nodes.filter(n => n instanceof PropertyNode);
+        propertyNodes.forEach(node => {
+            let propertySlot = node.outputSlots[0];
+            let propertyName = propertySlot.displayName;
+
+            let inputSlot = inputSlots.find(slot => slot.displayName === propertyName);
+
+            if (inputSlot) {
+                let outputSlot = inputSlot.connectSlot;
+                if (outputSlot) {
+                    propertySlot.connectSlots.forEach(inputSlotInSubGraph => {
+                        inputSlotInSubGraph.connectSlot = outputSlot;
+                        outputSlot.connectSlots = outputSlot.connectSlots.filter(slot => slot === inputSlot);
+    
+                        if (outputSlot.node) {
+                            inputSlotInSubGraph.node?.addDependency(outputSlot.node);
+                            //@ts-ignore
+                            outputSlot.node.setPriority(inputSlotInSubGraph.node.priority + 1);
+                        }
+                    })
+                    
+                    //@ts-ignore
+                    inputSlot.connectSlot = null;
+                }
+                else {
+                    propertySlot.connectSlots.forEach(inputSlotInSubGraph => {
+                        inputSlotInSubGraph.connectSlot = inputSlot;
+                        inputSlot.connectSlots.push(inputSlotInSubGraph);
+
+                        if (inputSlot.node) {
+                            inputSlotInSubGraph.node?.addDependency(this);
+                            //@ts-ignore
+                            this.setPriority(inputSlotInSubGraph.node.priority + 1);
+                        }
+                    });
+                }
+            }
+            
+
+        })
     }
 
     generateCode () {

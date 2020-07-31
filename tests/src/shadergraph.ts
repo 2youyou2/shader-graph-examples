@@ -63,15 +63,21 @@ export class ShaderGraph {
             let inputNodeSlot = inputNode.slotsMap.get(inputSlot.id);
             let outputNodeSlot = outputNode.slotsMap.get(outputSlot.id);
 
-            if (inputNodeSlot) {
-                inputNodeSlot.connectSlot = outputNodeSlot;
-                // inputNodeSlot.type = ShaderSlotType.Input;
-            }
-            if (outputNodeSlot) {
-                outputNodeSlot.connectSlot = inputNodeSlot;
-                // outputNodeSlot.type = ShaderSlotType.Output;
+            if (inputNodeSlot && outputNodeSlot) {
+                inputNodeSlot.connectSlots.push(outputNodeSlot);
+                outputNodeSlot.connectSlots.push(inputNodeSlot);
             }
         }
+
+        nodes.sort((a, b) => b.priority - a.priority);
+
+        nodes.forEach(node => {
+            if (node instanceof SubGraphNode) {
+                node.exchangeSubGraphInputNodes();
+            }
+
+            node.calcConcretePrecision();
+        })
 
         return {
             properties,
@@ -91,12 +97,6 @@ export class ShaderGraph {
         }
 
         let { properties, nodeMap, nodes, edges } = res;
-
-        nodes.sort((a, b) => b.priority - a.priority);
-
-        nodes.forEach(node => {
-            node.calcConcretePrecision();
-        })
 
         let masterNode = nodes.find(n => n instanceof MasterNode);
         if (!masterNode) {

@@ -56,6 +56,8 @@ CCEffect %{
 
 CCProgram shader_graph_common %{
 
+#define saturate(Value) clamp(Value, 0., 1.)
+
 float randomRange (vec2 seed, float min, float max) {
     float randomno = frac(sin(dot(seed, vec2(12.9898, 78.233)))*43758.5453);
     return lerp(min, max, randomno);
@@ -70,13 +72,11 @@ float ellipse (vec2 uv, float width, float height) {
     #endif
 }
 
-#define saturate(Value) clamp(Value, 0., 1.)
-
 }%
 
 
 CCProgram properties %{
-  uniform Properties {
+  uniform ShaderGraph_Properties {
     
 
   };
@@ -85,6 +85,10 @@ CCProgram properties %{
 }%
 
 CCProgram unlit-vs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+
   precision highp float;
   #include <input>
   #include <cc-global>
@@ -116,7 +120,7 @@ CCProgram unlit-fs %{
     #extension GL_OES_standard_derivatives : enable
   #endif
   
-  precision mediump float;
+  precision highp float;
   #include <output>
   #include <properties>
   
@@ -129,7 +133,7 @@ CCProgram unlit-fs %{
 
     
 
-    float var_6 = 0.8999999761581421;
+    float var_64 = 0.30000001192092896;
     vec2 var_7 = vec2(8., 8.);
     float var_8 = 0.5;
     float var_9 = 1;
@@ -155,8 +159,7 @@ CCProgram unlit-fs %{
     vec4 var_47 = vec4(var_60, 0., 0., 0.) + vec4(var_19, 0., 0., 0.);
     vec2 var_50 = vec2(var_27.x, var_47.x);
     vec4 var_21 = frac(vec4(var_50, 0., 0.));
-    float var_44 = Size;
-    float var_43 = ellipse(var_21.xy, var_44, var_6);
+    float var_43 = ellipse(var_21.xy, var_64, var_64);
 
     o.rgb *= vec3(var_43, 0.7353569269180298, 0.7353569269180298);
     o.a *= 1.;

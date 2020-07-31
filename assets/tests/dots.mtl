@@ -4,7 +4,7 @@
   "_objFlags": 0,
   "_native": "",
   "_effectAsset": {
-    "__uuid__": "4aeedb11-6fab-40e6-b7ce-b688fa0010de"
+    "__uuid__": "2998a9e1-3934-4346-8a9d-c916e4498bb7"
   },
   "_techIdx": 0,
   "_defines": [
@@ -22,14 +22,6 @@
     }
   ],
   "_props": [
-    {
-      "Color": {
-        "__type__": "cc.Color",
-        "r": 23,
-        "g": 36,
-        "b": 240,
-        "a": 213
-      }
-    }
+    {}
   ]
 }

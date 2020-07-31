@@ -54,7 +54,7 @@ CCEffect %{
 {{chunks}}
 
 CCProgram properties %{
-  uniform Properties {
+  uniform ShaderGraph_Properties {
     {{properties}}
   };
 
@@ -62,6 +62,10 @@ CCProgram properties %{
 }%
 
 CCProgram unlit-vs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+
   precision highp float;
   #include <input>
   #include <cc-global>
@@ -90,7 +94,7 @@ CCProgram unlit-fs %{
     #extension GL_OES_standard_derivatives : enable
   #endif
   
-  precision mediump float;
+  precision highp float;
   #include <output>
   #include <properties>
   
