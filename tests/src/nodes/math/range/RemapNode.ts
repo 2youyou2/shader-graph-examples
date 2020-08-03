@@ -1,10 +1,12 @@
-import { ShaderNode, ShaderSlotType, ShaderSlot } from "../../../base";
+import { ShaderNode, ShaderSlotType, ShaderSlot, ConcretePrecisionType } from "../../../base";
 
-export default class SaturateNode extends ShaderNode {
+export default class RemapNode extends ShaderNode {
+    concretePrecisionType = ConcretePrecisionType.Fixed;
+
     generateCode () {
         let In = this.getInputValue(0);
-        let InMinMax = this.getInputValue(0);
-        let OutMinMax = this.getInputValue(0);
+        let InMinMax = this.getInputValue(1);
+        let OutMinMax = this.getInputValue(2);
         return `${this.getOutputVarDefine(0)} = ${OutMinMax}.x + (${In} - ${InMinMax}.x) * (${OutMinMax}.y - ${OutMinMax}.x) / (${InMinMax}.y - ${InMinMax}.x);`;
     }
 }

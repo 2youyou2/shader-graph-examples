@@ -1,0 +1,181 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      
+        
+
+  - name: transparent
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      
+  - name: add
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: &r1 { cullMode: none }
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one
+      
+  - name: alpha-blend
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      
+}%
+
+
+
+
+CCProgram shader_graph_common %{
+
+#define saturate(Value) clamp(Value, 0., 1.)
+#define frac(uv) fract(uv)
+
+}%
+
+
+
+CCProgram properties %{
+  uniform ShaderGraph_Properties {
+    
+    vec4 empty_value;
+
+  };
+
+  
+}%
+
+CCProgram unlit-vs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+
+  precision highp float;
+  #include <input>
+  #include <cc-global>
+  #include <cc-local-batch>
+  #include <properties>
+
+  
+  #include <shader_graph_common>
+
+
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+
+  vec4 vert () {
+    vec4 position;
+    CCVertInput(position);
+
+    mat4 matWorld;
+    CCGetWorldMatrix(matWorld);
+
+    
+
+
+    position = position;
+
+    v_uv = a_texCoord;
+
+    return cc_matProj * (cc_matView * matWorld) * position;
+  }
+}%
+
+CCProgram unlit-fs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+  
+  precision highp float;
+  #include <output>
+  #include <properties>
+  
+  
+  #include <shader_graph_common>
+
+
+  in vec2 v_uv;
+
+  vec4 frag () {
+    vec4 o = vec4(1.);
+
+    
+
+    vec2 var_6 = vec2(5., 5.); // SubGraphNode
+    float var_7 = 0.20000000298023224; // SubGraphNode
+    float var_8 = 4.; // SubGraphNode
+     // SubGraphNode
+    vec2 var_78 = v_uv * vec2(var_6) + vec2(0., 0.); // TilingAndOffsetNode
+    float var_12 = vec4(var_78, 0., 0.).r; // SplitNode
+    float var_13 = vec4(var_78, 0., 0.).g; // SplitNode
+     // SplitNode
+    float var_85 = var_12; // PreviewNode
+    float var_87 = var_13; // PreviewNode
+    float var_30 = floor(var_85 + 0.5); // RoundNode
+    float var_48 = floor(var_87); // FloorNode
+    float var_28 = var_30 - var_48; // SubtractNode
+    float var_74 = var_8 * 2.; // MultiplyNode
+    float var_17 = floor(var_87 + 0.5); // RoundNode
+    float var_46 = floor(var_12); // FloorNode
+    float var_43 = var_28 + -1.; // AddNode
+    float var_91 = var_74; // PreviewNode
+    float var_51 = var_17 - var_46; // SubtractNode
+    float var_89 = var_74; // PreviewNode
+    float var_66 = mod(var_43, var_91); // ModuloNode
+    float var_25 = mod(var_51, var_89); // ModuloNode
+    float var_34 = var_7 * 0.5; // MultiplyNode
+    float var_40 = var_85 - var_30; // SubtractNode
+    float var_71 = floor(var_8 + 0.5); // RoundNode
+    float var_63 = var_66 + var_91; // AddNode
+    float var_20 = var_87 - var_17; // SubtractNode
+    float var_54 = var_25 + var_89; // AddNode
+    float var_116 = 0.05000000074505806 + var_34; // AddNode
+    float var_37 = abs(var_40); // AbsoluteNode
+    float var_57 = var_71 + 0.5; // AddNode
+    float var_69 = mod(var_63, var_91); // ModuloNode
+    float var_97 = 0.05000000074505806 + var_34; // AddNode
+    float var_22 = abs(var_20); // AbsoluteNode
+    float var_60 = mod(var_54, var_89); // ModuloNode
+    float var_113 = smoothstep(var_116, var_34, var_37); // SmoothstepNode
+    float var_94 = step(var_57, var_69); // StepNode
+    float var_82 = smoothstep(var_97, var_34, var_22); // SmoothstepNode
+    float var_103 = step(var_57, var_60); // StepNode
+    float var_109 = var_113 - var_94; // SubtractNode
+    float var_100 = var_82 - var_103; // SubtractNode
+    float var_106 = max(var_109, var_100); // MaximumNode
+
+    o.rgb *= vec3(var_106);
+    o.a *= 1.;
+
+    return CCFragOutput(o);
+  }
+}%

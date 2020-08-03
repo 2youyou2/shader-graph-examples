@@ -1,0 +1,290 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      properties: &props
+        
+        tiling: { value: [5, 5] }
+        seed: { value: 560 }
+
+  - name: transparent
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+  - name: add
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: &r1 { cullMode: none }
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one
+      properties: *props
+  - name: alpha-blend
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+}%
+
+
+
+
+CCProgram shader_graph_common %{
+
+#define saturate(Value) clamp(Value, 0., 1.)
+#define frac(uv) fract(uv)
+
+}%
+
+CCProgram shader_graph_noise %{
+
+float noise_randomValue (vec2 uv)
+{
+    return fract(sin(dot(uv, vec2(12.9898, 78.233)))*43758.5453);
+}
+
+float noise_interpolate (float a, float b, float t)
+{
+    return (1.0-t)*a + (t*b);
+}
+
+float simpleNoise_valueNoise (vec2 uv)
+{
+    vec2 i = floor(uv);
+    vec2 f = fract(uv);
+    f = f * f * (3.0 - 2.0 * f);
+
+    uv = abs(fract(uv) - 0.5);
+    vec2 c0 = i + vec2(0.0, 0.0);
+    vec2 c1 = i + vec2(1.0, 0.0);
+    vec2 c2 = i + vec2(0.0, 1.0);
+    vec2 c3 = i + vec2(1.0, 1.0);
+    float r0 = noise_randomValue(c0);
+    float r1 = noise_randomValue(c1);
+    float r2 = noise_randomValue(c2);
+    float r3 = noise_randomValue(c3);
+
+    float bottomOfGrid = noise_interpolate(r0, r1, f.x);
+    float topOfGrid = noise_interpolate(r2, r3, f.x);
+    float t = noise_interpolate(bottomOfGrid, topOfGrid, f.y);
+    return t;
+}
+
+float simpleNoise (vec2 uv, float scale) {
+    float t = 0.0;
+
+    float freq = pow(2.0, 0.);
+    float amp = pow(0.5, 3.);
+    t += simpleNoise_valueNoise(vec2(uv.x*scale/freq, uv.y*scale/freq))*amp;
+
+    freq = pow(2.0, 1.);
+    amp = pow(0.5, 3.-1.);
+    t += simpleNoise_valueNoise(vec2(uv.x*scale/freq, uv.y*scale/freq))*amp;
+
+    freq = pow(2.0, 2.);
+    amp = pow(0.5, 3.-2.);
+    t += simpleNoise_valueNoise(vec2(uv.x*scale/freq, uv.y*scale/freq))*amp;
+
+    return t;
+}
+
+}%
+
+
+
+CCProgram properties %{
+  uniform ShaderGraph_Properties {
+    
+    vec2 tiling;
+    float seed;
+
+  };
+
+  
+}%
+
+CCProgram unlit-vs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+
+  precision highp float;
+  #include <input>
+  #include <cc-global>
+  #include <cc-local-batch>
+  #include <properties>
+
+  
+  #include <shader_graph_common>
+  #include <shader_graph_noise>
+
+
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+
+  vec4 vert () {
+    vec4 position;
+    CCVertInput(position);
+
+    mat4 matWorld;
+    CCGetWorldMatrix(matWorld);
+
+    
+
+
+    position = position;
+
+    v_uv = a_texCoord;
+
+    return cc_matProj * (cc_matView * matWorld) * position;
+  }
+}%
+
+CCProgram unlit-fs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+  
+  precision highp float;
+  #include <output>
+  #include <properties>
+  
+  
+  #include <shader_graph_common>
+  #include <shader_graph_noise>
+
+
+  in vec2 v_uv;
+
+  vec4 frag () {
+    vec4 o = vec4(1.);
+
+    
+
+    vec2 var_226 = tiling; // PropertyNode
+    vec2 var_224 = v_uv * vec2(var_226) + vec2(0., 0.); // TilingAndOffsetNode
+    vec2 var_218 = floor(vec2(var_224)); // FloorNode
+    float var_227 = seed; // PropertyNode
+    float var_175 = simpleNoise(vec2(var_218), var_227); // EllipseNode
+    float var_185 = var_175 - 0.5; // SubtractNode
+    vec2 var_220 = fract(vec2(var_224)); // FractionNode
+    float var_182 = 2. * var_185; // MultiplyNode
+    float var_169 = vec4(var_220, 0., 0.).r; // SplitNode
+    float var_170 = vec4(var_220, 0., 0.).g; // SplitNode
+     // SplitNode
+    float var_179 = fract(var_182); // FractionNode
+    float var_164 = 1. - var_169; // MinimumNode
+    float var_157 = step(0.75, var_179); // StepNode
+    float var_151 = step(0.5, var_179); // StepNode
+    vec2 var_167 = vec2(var_164, var_170); // Vector2Node
+    float var_136 = var_179; // PreviewNode
+    vec2 var_177 = 1. - vec2(var_220); // MinimumNode
+    float var_148 = var_151 - var_157; // SubtractNode
+    vec2 var_162 = 1. - vec2(var_167); // MinimumNode
+    float var_145 = step(0.25, var_136); // StepNode
+    vec2 var_154 = vec2(var_157) * vec2(var_177); // MultiplyNode
+    vec2 var_160 = vec2(var_148) * vec2(var_162); // MultiplyNode
+    float var_142 = var_145 - var_151; // SubtractNode
+    vec2 var_134 = vec2(var_154) + vec2(var_160); // AddNode
+    vec2 var_139 = vec2(var_167) * vec2(var_142); // MultiplyNode
+    float var_122 = 1. - var_145; // MinimumNode
+    vec2 var_120 = vec2(var_220); // PreviewNode
+    vec2 var_131 = vec2(var_134) + vec2(var_139); // AddNode
+    vec2 var_125 = vec2(var_122) * vec2(var_120); // MultiplyNode
+    vec2 var_128 = vec2(var_131) + vec2(var_125); // AddNode
+    vec2 var_84 = vec2(var_128) - vec2(0.5, 1.); // SubtractNode
+    vec2 var_50 = vec2(var_128) - vec2(1., 0.5); // SubtractNode
+    vec2 var_51 = vec2(0., 0.); // SubGraphNode
+    vec2 var_52 = vec2(0.44999998807907104, 0.4000000059604645); // SubGraphNode
+    vec2 var_53 = vec2(0.3499999940395355, 0.30000001192092896); // SubGraphNode
+     // SubGraphNode
+    vec2 var_88 = vec2(0., 0.); // SubGraphNode
+    vec2 var_89 = vec2(0.699999988079071, 0.6499999761581421); // SubGraphNode
+    vec2 var_90 = vec2(0.6000000238418579, 0.550000011920929); // SubGraphNode
+     // SubGraphNode
+    vec2 var_9 = vec2(0., 0.); // SubGraphNode
+    vec2 var_10 = vec2(0.20000000298023224, 0.15000000596046448); // SubGraphNode
+    vec2 var_11 = vec2(0.10000000149011612, 0.05000000074505806); // SubGraphNode
+     // SubGraphNode
+    vec2 var_186 = vec2(0., 0.); // SubGraphNode
+    vec2 var_187 = vec2(0.20000000298023224, 0.15000000596046448); // SubGraphNode
+    vec2 var_188 = vec2(0.10000000149011612, 0.05000000074505806); // SubGraphNode
+     // SubGraphNode
+    float var_78 = vec4(var_52, 0., 0.).r; // SplitNode
+    float var_79 = vec4(var_52, 0., 0.).g; // SplitNode
+     // SplitNode
+    float var_57 = length(vec4(var_128, 0., 0.)); // LengthNode
+    float var_73 = vec4(var_53, 0., 0.).r; // SplitNode
+    float var_74 = vec4(var_53, 0., 0.).g; // SplitNode
+     // SplitNode
+    float var_115 = vec4(var_89, 0., 0.).r; // SplitNode
+    float var_116 = vec4(var_89, 0., 0.).g; // SplitNode
+     // SplitNode
+    float var_94 = length(vec4(var_128, 0., 0.)); // LengthNode
+    float var_110 = vec4(var_90, 0., 0.).r; // SplitNode
+    float var_111 = vec4(var_90, 0., 0.).g; // SplitNode
+     // SplitNode
+    float var_36 = vec4(var_10, 0., 0.).r; // SplitNode
+    float var_37 = vec4(var_10, 0., 0.).g; // SplitNode
+     // SplitNode
+    float var_15 = length(vec4(var_84, 0., 0.)); // LengthNode
+    float var_31 = vec4(var_11, 0., 0.).r; // SplitNode
+    float var_32 = vec4(var_11, 0., 0.).g; // SplitNode
+     // SplitNode
+    float var_213 = vec4(var_187, 0., 0.).r; // SplitNode
+    float var_214 = vec4(var_187, 0., 0.).g; // SplitNode
+     // SplitNode
+    float var_192 = length(vec4(var_50, 0., 0.)); // LengthNode
+    float var_208 = vec4(var_188, 0., 0.).r; // SplitNode
+    float var_209 = vec4(var_188, 0., 0.).g; // SplitNode
+     // SplitNode
+    float var_65 = smoothstep(var_78, var_79, var_57); // SmoothstepNode
+    float var_61 = smoothstep(var_73, var_74, var_57); // SmoothstepNode
+    float var_102 = smoothstep(var_115, var_116, var_94); // SmoothstepNode
+    float var_98 = smoothstep(var_110, var_111, var_94); // SmoothstepNode
+    float var_23 = smoothstep(var_36, var_37, var_15); // SmoothstepNode
+    float var_19 = smoothstep(var_31, var_32, var_15); // SmoothstepNode
+    float var_200 = smoothstep(var_213, var_214, var_192); // SmoothstepNode
+    float var_196 = smoothstep(var_208, var_209, var_192); // SmoothstepNode
+    float var_68 = var_65 - var_61; // SubtractNode
+    float var_105 = var_102 - var_98; // SubtractNode
+    float var_26 = var_23 - var_19; // SubtractNode
+    float var_203 = var_200 - var_196; // SubtractNode
+    float var_87 = var_68 + var_105; // AddNode
+    float var_47 = var_26 + var_203; // AddNode
+    float var_44 = var_87 + var_47; // AddNode
+
+    o.rgb *= vec3(var_44);
+    o.a *= 1.;
+
+    return CCFragOutput(o);
+  }
+}%

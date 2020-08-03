@@ -1,7 +1,7 @@
-import { ShaderNode, ShaderPropery } from "../../base";
+import { ShaderNode, ShaderPropery, ConcretePrecisionType } from "../../base";
 
 export default class PropertyNode extends ShaderNode {
-    fixedConcretePrecision = true;
+    concretePrecisionType = ConcretePrecisionType.Fixed;
 
     property: ShaderPropery | null = null;
 
@@ -9,6 +9,10 @@ export default class PropertyNode extends ShaderNode {
         this.property = properties.find(p => {
             return p.data.m_Guid.m_GuidSerialized === this.data.m_PropertyGuidSerialized;
         })
+
+        if (this.property) {
+            this.property.node = this;
+        }
     }
 
     generateCode () {

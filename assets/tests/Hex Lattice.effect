@@ -1,0 +1,167 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      
+        
+
+  - name: transparent
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      
+  - name: add
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: &r1 { cullMode: none }
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one
+      
+  - name: alpha-blend
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      
+}%
+
+
+
+
+CCProgram shader_graph_common %{
+
+#define saturate(Value) clamp(Value, 0., 1.)
+#define frac(uv) fract(uv)
+
+}%
+
+
+
+CCProgram properties %{
+  uniform ShaderGraph_Properties {
+    
+    vec4 empty_value;
+
+  };
+
+  
+}%
+
+CCProgram unlit-vs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+
+  precision highp float;
+  #include <input>
+  #include <cc-global>
+  #include <cc-local-batch>
+  #include <properties>
+
+  
+  #include <shader_graph_common>
+
+
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+
+  vec4 vert () {
+    vec4 position;
+    CCVertInput(position);
+
+    mat4 matWorld;
+    CCGetWorldMatrix(matWorld);
+
+    
+
+
+    position = position;
+
+    v_uv = a_texCoord;
+
+    return cc_matProj * (cc_matView * matWorld) * position;
+  }
+}%
+
+CCProgram unlit-fs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+  
+  precision highp float;
+  #include <output>
+  #include <properties>
+  
+  
+  #include <shader_graph_common>
+
+
+  in vec2 v_uv;
+
+  vec4 frag () {
+    vec4 o = vec4(1.);
+
+    
+
+    vec2 var_6 = vec2(10., 10.); // SubGraphNode
+    float var_7 = 1.; // SubGraphNode
+    float var_8 = 0.20000000298023224; // SubGraphNode
+     // SubGraphNode
+    vec2 var_14 = v_uv * vec2(var_6) + vec2(0., 0.); // TilingAndOffsetNode
+    float var_16 = vec4(var_14, 0., 0.).r; // SplitNode
+    float var_17 = vec4(var_14, 0., 0.).g; // SplitNode
+     // SplitNode
+    float var_22 = 1.5 * var_16; // MultiplyNode
+    float var_24 = floor(var_22); // FloorNode
+    float var_27 = mod(var_24, 2.); // ModuloNode
+    float var_30 = 0.5 * var_27; // MultiplyNode
+    float var_33 = var_17 + var_30; // AddNode
+    vec2 var_36 = vec2(var_22, var_33); // Vector2Node
+    vec2 var_39 = mod(vec2(var_36), vec2(1., 1.)); // ModuloNode
+    vec2 var_42 = vec2(var_39) - vec2(0.5, 0.5); // SubtractNode
+    vec2 var_44 = abs(vec2(var_42)); // AbsoluteNode
+    float var_46 = vec4(var_44, 0., 0.).r; // SplitNode
+    float var_47 = vec4(var_44, 0., 0.).g; // SplitNode
+     // SplitNode
+    float var_52 = 1.5 * var_46; // MultiplyNode
+    float var_58 = var_52 + var_47; // AddNode
+    float var_55 = var_47 * 2.; // MultiplyNode
+    float var_61 = max(var_58, var_55); // MaximumNode
+    float var_64 = var_61 - var_7; // SubtractNode
+    float var_66 = abs(var_64); // AbsoluteNode
+    float var_72 = var_66 * 2.; // MultiplyNode
+    float var_76 = smoothstep(0., var_8, var_72); // SmoothstepNode
+
+    o.rgb *= vec3(var_76);
+    o.a *= 1.;
+
+    return CCFragOutput(o);
+  }
+}%

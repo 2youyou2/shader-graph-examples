@@ -1,4 +1,4 @@
-import { ShaderNode, ShaderSlot, ShaderPropery, ShaderEdgeSlot } from "../../base";
+import { ShaderNode, ShaderSlot, ShaderPropery, ShaderEdgeSlot, ConcretePrecisionType } from "../../base";
 import globby from 'globby'
 import path from 'path'
 import { ShaderGraph } from "../../shadergraph";
@@ -12,13 +12,15 @@ export default class SubGraphNode extends ShaderNode {
 
     subgraphOutNode: SubGraphOutputNode | null = null;
 
-    fixedConcretePrecision = true;
+    concretePrecisionType = ConcretePrecisionType.Fixed;
 
     constructor (data) {
         super(data)
 
         let name = this.data.m_Name;
-        let paths = globby.sync(path.join(ShaderGraph.subgraphPath, `**/${name}.ShaderSubGraph`).replace(/\\/g, '/'))
+        let subgraphPath = path.join(ShaderGraph.subgraphPath, `**/${name}.*`).replace(/\\/g, '/');
+        let paths = globby.sync(subgraphPath)
+        paths = paths.filter(p => path.extname(p).toLowerCase() === '.shadersubgraph')
         if (!paths[0]) {
             console.error(`Can not find sub graph with name [${name}]`)
             return;
@@ -95,7 +97,7 @@ export default class SubGraphNode extends ShaderNode {
                 else {
                     propertySlot.connectSlots.forEach(inputSlotInSubGraph => {
                         inputSlotInSubGraph.connectSlot = inputSlot;
-                        inputSlot.connectSlots.push(inputSlotInSubGraph);
+                        // inputSlot.connectSlots.push(inputSlotInSubGraph);
 
                         if (inputSlot.node) {
                             inputSlotInSubGraph.node?.addDependency(this);
@@ -114,7 +116,7 @@ export default class SubGraphNode extends ShaderNode {
         let code = '';
         let inputSlots = this.inputSlots;
         for (let i = 0; i < inputSlots.length; i++) {
-            if (!inputSlots[i].connectSlot) continue;
+            // if (!inputSlots[i].connectSlot) continue;
             code += `${inputSlots[i].varDefine} = ${inputSlots[i].defaultValue};\n`;
         }
         return code;

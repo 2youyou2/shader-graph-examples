@@ -1,8 +1,6 @@
-import { ShaderNode, ShaderSlotType, ShaderSlot } from "../../../base";
+import InputNode from "../InputNode";
 
-export default class BooleanNode extends ShaderNode {
-    fixedConcretePrecision = true;
-
+export default class BooleanNode extends InputNode {
     generateCode () {
         return `bool ${this.getOutputVarName(0)} = ${this.getInputValue(0)};`;
     }

@@ -4,14 +4,13 @@ import { createNode } from "./nodes";
 import MasterNode from "./nodes/master/MasterNode";
 import SubGraphNode from "./nodes/subgraph/SubGraphNode";
 
-import globby from 'globby'
 import fs from 'fs'
-import path from 'path'
 import PropertyNode from "./nodes/input/PropertyNode";
-import SubGraphOutputNode from "./nodes/subgraph/SubGraphOutputNode";
 
 export class ShaderGraph {
     static subgraphPath = ''
+
+    static allNodes: ShaderNode[][] = [];
 
     static searchNodes (graphPath: string) {
         let contentStr = fs.readFileSync(graphPath, 'utf-8');
@@ -21,11 +20,22 @@ export class ShaderGraph {
         let properties: ShaderPropery[] = content.m_SerializedProperties.map(d => new ShaderPropery(d));
         let nodeMap: Map<string, ShaderNode> = new Map;
 
+        let propertyNodeMap: Map<ShaderPropery, PropertyNode> = new Map;
+
         let nodes: ShaderNode[] = content.m_SerializableNodes.map(d => {
             let node = createNode(d);
 
             if (node instanceof PropertyNode) {
                 node.searchProperties(properties);
+                
+                let propertyNode = propertyNodeMap.get(node.property);
+                if (propertyNode) {
+                    nodeMap.set(node.uuid, propertyNode);
+                    return propertyNode;
+                }
+
+                propertyNodeMap.set(node.property, node);
+
             }
 
             nodeMap.set(node.uuid, node);
@@ -79,6 +89,8 @@ export class ShaderGraph {
             node.calcConcretePrecision();
         })
 
+        this.allNodes.push(nodes);
+
         return {
             properties,
             nodeMap,
@@ -90,6 +102,8 @@ export class ShaderGraph {
     static decode (path: string) {
         
         resetGlobalShaderSlotID();
+
+        this.allNodes.length = 0;
 
         let res = this.searchNodes(path);
         if (!res) {
@@ -105,11 +119,6 @@ export class ShaderGraph {
         }
 
         (masterNode as MasterNode).properties = properties;
-
-        // for (let i = 0; i < nodes.length; i++) {
-        //     let node = nodes[i];
-        //     let code = node.generateCode();
-        // }
 
         let code = masterNode.generateCode();
         return code;

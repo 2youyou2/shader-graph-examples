@@ -1,0 +1,227 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      
+        
+
+  - name: transparent
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      
+  - name: add
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: &r1 { cullMode: none }
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one
+      
+  - name: alpha-blend
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      
+}%
+
+
+
+
+CCProgram shader_graph_common %{
+
+#define saturate(Value) clamp(Value, 0., 1.)
+#define frac(uv) fract(uv)
+
+}%
+
+
+
+CCProgram shader_graph_uv %{
+
+    vec2 polarCoordinates (vec2 uv, vec2 center, float radialScale, float lengthScale) {
+        vec2 delta = uv - center;
+        float radius = length(delta) * 2. * radialScale;
+        float angle = atan(delta.y, delta.x) * 1.0/6.28 * lengthScale;
+        return vec2(radius, angle);
+    }
+
+    vec2 rotateCoordinates (vec2 uv, vec2 center, float rotation) {
+        //rotation matrix
+        uv -= center;
+        float s = sin(rotation);
+        float c = cos(rotation);
+
+        //center rotation matrix
+        mat2 rMatrix = mat2(c, -s, s, c);
+        rMatrix *= 0.5;
+        rMatrix += 0.5;
+        rMatrix = rMatrix*2. - 1.;
+
+        //multiply the UVs by the rotation matrix
+        uv *= rMatrix;
+        uv += center;
+
+        return uv;
+    }
+
+}%
+
+
+
+CCProgram shader_graph_shape %{
+
+float randomRange (vec2 seed, float minv, float maxv) {
+    float randomno = fract(sin(dot(seed, vec2(12.9898, 78.233)))*43758.5453);
+    return mix(minv, maxv, randomno);
+}
+
+float ellipse (vec2 uv, float width, float height) {
+    #if USE_standard_derivatives
+        float d = length((uv * 2. - 1.) / vec2(width, height));
+        return saturate((1. - d) / fwidth(d));
+    #else
+        return 1.;
+    #endif
+}
+
+float rect (vec2 uv, float width, float height) {
+    #if USE_standard_derivatives
+        vec2 d = abs(uv * 2. - 1.) - vec2(width, width);
+        d = 1. - d / fwidth(d);
+        return saturate(min(d.x, d.y));
+    #else
+        return 1.;
+    #endif
+}
+
+float reoundRect (vec2 uv, float width, float height, float radius) {
+    #if USE_standard_derivatives
+        radius = max(min(min(abs(radius * 2.), abs(width)), abs(width)), 1e-5);
+        vec2 uv = abs(uv * 2. - 1.) - vec2(width, width) + radius;
+        float d = length(max(0., uv)) / radius;
+        return saturate((1. - d) / fwidth(d));
+    #else
+        return 1.;
+    #endif
+}
+
+}%
+
+
+
+CCProgram properties %{
+  uniform ShaderGraph_Properties {
+    
+    vec4 empty_value;
+
+  };
+
+  
+}%
+
+CCProgram unlit-vs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+
+  precision highp float;
+  #include <input>
+  #include <cc-global>
+  #include <cc-local-batch>
+  #include <properties>
+
+  
+  #include <shader_graph_common>
+  #include <shader_graph_uv>
+  #include <shader_graph_shape>
+
+
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+
+  vec4 vert () {
+    vec4 position;
+    CCVertInput(position);
+
+    mat4 matWorld;
+    CCGetWorldMatrix(matWorld);
+
+    
+
+
+    position = position;
+
+    v_uv = a_texCoord;
+
+    return cc_matProj * (cc_matView * matWorld) * position;
+  }
+}%
+
+CCProgram unlit-fs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+  
+  precision highp float;
+  #include <output>
+  #include <properties>
+  
+  
+  #include <shader_graph_common>
+  #include <shader_graph_uv>
+  #include <shader_graph_shape>
+
+
+  in vec2 v_uv;
+
+  vec4 frag () {
+    vec4 o = vec4(1.);
+
+    
+
+    float var_6 = 6.; // SubGraphNode
+    float var_7 = 0.; // SubGraphNode
+    float var_8 = 0.5; // SubGraphNode
+    float var_9 = 45.; // SubGraphNode
+     // SubGraphNode
+    vec2 var_35 = rotateCoordinates(v_uv, vec2(0.5, 0.5), var_9); // RotateNode
+    vec2 var_24 = vec2(var_6, 1.); // Vector2Node
+    vec2 var_28 = vec2(var_7, 0.); // Vector2Node
+    vec2 var_15 = vec2(var_35) * vec2(var_24) + vec2(var_28); // TilingAndOffsetNode
+    vec2 var_17 = fract(vec2(var_15)); // FractionNode
+    float var_21 = rect(vec2(var_17), var_8, 1.); // RectangleNode
+
+    o.rgb *= vec3(var_21);
+    o.a *= 1.;
+
+    return CCFragOutput(o);
+  }
+}%

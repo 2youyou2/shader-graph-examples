@@ -1,6 +1,8 @@
-import { ShaderNode, ShaderSlot, ShaderPropery } from "../../base";
+import { ShaderNode, ShaderSlot, ShaderPropery, ConcretePrecisionType } from "../../base";
 import fs from 'fs';
 import path from 'path';
+import { ShaderGraph } from "../../shadergraph";
+import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
 
 function findConnectNodes (slot: ShaderSlot, nodes: ShaderNode[]) {
     if (!slot.connectSlot) return;
@@ -28,7 +30,7 @@ export default class MasterNode extends ShaderNode {
     templatePath = '';
 
     isMasterNode = true;
-    fixedConcretePrecision = true;
+    concretePrecisionType = ConcretePrecisionType.Fixed;
 
     properties: ShaderPropery[] = [];
 
@@ -62,6 +64,7 @@ export default class MasterNode extends ShaderNode {
         let nodes = this.getConnectNodes(this.fsSlotIndices);
         nodes.forEach(node => {
             node.generateCode().split('\n').forEach(c => {
+                c += ` // ${node.constructor.name}`
                 code.push('    ' + c);
             });
         })
@@ -90,19 +93,21 @@ export default class MasterNode extends ShaderNode {
             let z = isColor ? value.b : value.z;
             let w = isColor ? value.a : value.w;
 
-            if (p.concretePrecision === 1) {
+            let concretePrecision = p.node?.outputSlots[0].concretePrecision;
+
+            if (concretePrecision === 1) {
                 precision = 'float';
-                mtlValue = `${x}`
+                mtlValue = `${value}`
             }
-            else if (p.concretePrecision === 2) {
+            else if (concretePrecision === 2) {
                 precision = 'vec2';
                 mtlValue = `[${x}, ${y}]`
             }
-            else if (p.concretePrecision === 3) {
+            else if (concretePrecision === 3) {
                 precision = 'vec4';
                 mtlValue = `[${x}, ${y}, ${z}, 0]`
             }
-            else if (p.concretePrecision === 4) {
+            else if (concretePrecision === 4) {
                 precision = 'vec4';
                 mtlValue = `[${x}, ${y}, ${z},  ${w}]`
             }
@@ -112,7 +117,7 @@ export default class MasterNode extends ShaderNode {
             uniform += `    ${precision} ${p.name};\n`;
             mtl += `        ${p.name}: { value: ${mtlValue} ${editorStr}}\n`
         })
-        
+
         if (properties.length === 0) {
             uniform += '    vec4 empty_value;\n'
         }
@@ -124,25 +129,50 @@ export default class MasterNode extends ShaderNode {
         };
     }
 
+    replaceChunks (code) {
+        let depChunks: string[] = ['common'];
+        let allNodes = ShaderGraph.allNodes;
+        for (let i = 0; i < allNodes.length; i++) {
+            for (let j = 0; j < allNodes[i].length; j++) {
+                let node = allNodes[i][j];
+                for (let k = 0; k < node.depChunks.length; k++) {
+                    if (!depChunks.includes(node.depChunks[k])) {
+                        depChunks.push(node.depChunks[k])
+                    }
+                }
+            }
+        }
+
+        let chunkIncludes = '\n';
+        let chunks = '\n';
+        depChunks.forEach(chunkName => {
+            let chunkPath = path.join(__dirname, `../../../templates/chunks/${chunkName}.chunk`);
+            let chunk = fs.readFileSync(chunkPath, 'utf-8');
+            if (!chunk) {
+                console.error(`Can not find chunk with path [${chunkPath}]`)
+                return;
+            }
+            chunks += chunk + '\n';
+            chunkIncludes += `  #include <shader_graph_${chunkName}>\n`;
+        })
+
+        code = code.replace('{{chunks}}', chunks);
+        code = code.replace('{{vs_chunks}}', chunkIncludes);
+        code = code.replace('{{fs_chunks}}', chunkIncludes);
+
+        return code;
+    }
+
     generateCode () {
         let code = fs.readFileSync(this.templatePath, 'utf-8');
-
-        let commonChunk = fs.readFileSync(path.join(__dirname, '../../../templates/chunks/common.chunk'), 'utf-8');
 
         const vsCode = this.generateVsCode();
         const fsCode = this.generateFsCode();
 
-        code = code.replace('{{chunks}}', commonChunk);
-
-        let chunkIncludes = `
-  #include <shader_graph_common>
-        `;
-
-        code = code.replace('{{vs_chunks}}', chunkIncludes);
-        code = code.replace('{{fs_chunks}}', chunkIncludes);
-
         code = code.replace('{{vs}}', vsCode);
         code = code.replace('{{fs}}', fsCode);
+
+        code = this.replaceChunks(code);
 
         if (!this.properties || this.properties.length === 0) {
             code = code.replace(/properties: &props/g, '');

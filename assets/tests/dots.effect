@@ -54,13 +54,21 @@ CCEffect %{
 
 
 
+
 CCProgram shader_graph_common %{
 
 #define saturate(Value) clamp(Value, 0., 1.)
+#define frac(uv) fract(uv)
 
-float randomRange (vec2 seed, float min, float max) {
-    float randomno = frac(sin(dot(seed, vec2(12.9898, 78.233)))*43758.5453);
-    return lerp(min, max, randomno);
+}%
+
+
+
+CCProgram shader_graph_shape %{
+
+float randomRange (vec2 seed, float minv, float maxv) {
+    float randomno = fract(sin(dot(seed, vec2(12.9898, 78.233)))*43758.5453);
+    return mix(minv, maxv, randomno);
 }
 
 float ellipse (vec2 uv, float width, float height) {
@@ -72,7 +80,29 @@ float ellipse (vec2 uv, float width, float height) {
     #endif
 }
 
+float rect (vec2 uv, float width, float height) {
+    #if USE_standard_derivatives
+        vec2 d = abs(uv * 2. - 1.) - vec2(width, width);
+        d = 1. - d / fwidth(d);
+        return saturate(min(d.x, d.y));
+    #else
+        return 1.;
+    #endif
+}
+
+float reoundRect (vec2 uv, float width, float height, float radius) {
+    #if USE_standard_derivatives
+        radius = max(min(min(abs(radius * 2.), abs(width)), abs(width)), 1e-5);
+        vec2 uv = abs(uv * 2. - 1.) - vec2(width, width) + radius;
+        float d = length(max(0., uv)) / radius;
+        return saturate((1. - d) / fwidth(d));
+    #else
+        return 1.;
+    #endif
+}
+
 }%
+
 
 
 CCProgram properties %{
@@ -98,7 +128,8 @@ CCProgram unlit-vs %{
 
   
   #include <shader_graph_common>
-        
+  #include <shader_graph_shape>
+
 
   in vec2 a_texCoord;
   out vec2 v_uv;
@@ -132,7 +163,8 @@ CCProgram unlit-fs %{
   
   
   #include <shader_graph_common>
-        
+  #include <shader_graph_shape>
+
 
   in vec2 v_uv;
 
@@ -141,29 +173,30 @@ CCProgram unlit-fs %{
 
     
 
-    float var_64 = 0.30000001192092896;
-    vec2 var_7 = vec2(8., 8.);
-    float var_8 = 0.5;
-    float var_9 = 1.;
-    
-    vec2 var_16 = v_uv * vec2(var_7) + vec2(0., 0.);
-    float var_35 = vec4(var_16, 0., 0.).r;
-    float var_36 = vec4(var_16, 0., 0.).g;
-    
-    float var_59 = vec4(var_16, 0., 0.).r;
-    float var_60 = vec4(var_16, 0., 0.).g;
-    
-    float var_33 = mod(var_36, 2.);
-    float var_57 = mod(var_59, 2.);
-    float var_24 = step(1., var_33);
-    float var_53 = step(1., var_57);
-    float var_30 = var_8 * var_24;
-    float var_19 = var_9 * var_53;
-    float var_27 = var_35 + var_30;
-    float var_47 = var_60 + var_19;
-    vec2 var_50 = vec2(var_27, var_47);
-    vec2 var_21 = fract(vec2(var_50));
-    float var_43 = ellipse(vec2(var_21), var_64, var_64);
+    float var_64 = 0.30000001192092896; // Vector1Node
+    float var_6 = 0.8999999761581421; // SubGraphNode
+    vec2 var_7 = vec2(8., 8.); // SubGraphNode
+    float var_8 = 0.5; // SubGraphNode
+    float var_9 = 1.; // SubGraphNode
+     // SubGraphNode
+    vec2 var_16 = v_uv * vec2(var_7) + vec2(0., 0.); // TilingAndOffsetNode
+    float var_35 = vec4(var_16, 0., 0.).r; // SplitNode
+    float var_36 = vec4(var_16, 0., 0.).g; // SplitNode
+     // SplitNode
+    float var_59 = vec4(var_16, 0., 0.).r; // SplitNode
+    float var_60 = vec4(var_16, 0., 0.).g; // SplitNode
+     // SplitNode
+    float var_33 = mod(var_36, 2.); // ModuloNode
+    float var_57 = mod(var_59, 2.); // ModuloNode
+    float var_24 = step(1., var_33); // StepNode
+    float var_53 = step(1., var_57); // StepNode
+    float var_30 = var_8 * var_24; // MultiplyNode
+    float var_19 = var_9 * var_53; // MultiplyNode
+    float var_27 = var_35 + var_30; // AddNode
+    float var_47 = var_60 + var_19; // AddNode
+    vec2 var_50 = vec2(var_27, var_47); // Vector2Node
+    vec2 var_21 = fract(vec2(var_50)); // FractionNode
+    float var_43 = ellipse(vec2(var_21), var_64, var_64); // EllipseNode
 
     o.rgb *= vec3(var_43);
     o.a *= 1.;

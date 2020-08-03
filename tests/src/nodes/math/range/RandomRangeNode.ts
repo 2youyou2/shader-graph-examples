@@ -1,10 +1,12 @@
-import { ShaderNode, ShaderSlotType, ShaderSlot } from "../../../base";
+import { ShaderNode, ShaderSlotType, ShaderSlot, ConcretePrecisionType } from "../../../base";
 
 export default class RandomRangeNode extends ShaderNode {
+    concretePrecisionType = ConcretePrecisionType.Fixed;
+    
     generateCode () {
         let seed = this.getInputValue(0);
-        let min = this.getInputValue(0);
-        let max = this.getInputValue(0);
+        let min = this.getInputValue(1);
+        let max = this.getInputValue(2);
         return `${this.getOutputVarDefine(0)} = randomRange(${seed}, ${min}, ${max});`;
     }
 }

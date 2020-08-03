@@ -1,7 +1,7 @@
-import { ShaderNode } from "../../base";
+import { ShaderNode, ConcretePrecisionType } from "../../base";
 
 export default class SplitNode extends ShaderNode {
-    fixedConcretePrecision = true;
+    concretePrecisionType = ConcretePrecisionType.Fixed;
 
     constructor (data) {
         super(data);

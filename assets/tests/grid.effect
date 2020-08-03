@@ -1,0 +1,193 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      properties: &props
+        
+        tilling: { value: [8, 8] }
+        offset: { value: [0, 0] }
+        size: { value: 0.800000011920929 }
+
+  - name: transparent
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+  - name: add
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: &r1 { cullMode: none }
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one
+      properties: *props
+  - name: alpha-blend
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+}%
+
+
+
+
+CCProgram shader_graph_common %{
+
+#define saturate(Value) clamp(Value, 0., 1.)
+#define frac(uv) fract(uv)
+
+}%
+
+
+
+CCProgram shader_graph_shape %{
+
+float randomRange (vec2 seed, float minv, float maxv) {
+    float randomno = fract(sin(dot(seed, vec2(12.9898, 78.233)))*43758.5453);
+    return mix(minv, maxv, randomno);
+}
+
+float ellipse (vec2 uv, float width, float height) {
+    #if USE_standard_derivatives
+        float d = length((uv * 2. - 1.) / vec2(width, height));
+        return saturate((1. - d) / fwidth(d));
+    #else
+        return 1.;
+    #endif
+}
+
+float rect (vec2 uv, float width, float height) {
+    #if USE_standard_derivatives
+        vec2 d = abs(uv * 2. - 1.) - vec2(width, width);
+        d = 1. - d / fwidth(d);
+        return saturate(min(d.x, d.y));
+    #else
+        return 1.;
+    #endif
+}
+
+float reoundRect (vec2 uv, float width, float height, float radius) {
+    #if USE_standard_derivatives
+        radius = max(min(min(abs(radius * 2.), abs(width)), abs(width)), 1e-5);
+        vec2 uv = abs(uv * 2. - 1.) - vec2(width, width) + radius;
+        float d = length(max(0., uv)) / radius;
+        return saturate((1. - d) / fwidth(d));
+    #else
+        return 1.;
+    #endif
+}
+
+}%
+
+
+
+CCProgram properties %{
+  uniform ShaderGraph_Properties {
+    
+    vec2 tilling;
+    vec2 offset;
+    float size;
+
+  };
+
+  
+}%
+
+CCProgram unlit-vs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+
+  precision highp float;
+  #include <input>
+  #include <cc-global>
+  #include <cc-local-batch>
+  #include <properties>
+
+  
+  #include <shader_graph_common>
+  #include <shader_graph_shape>
+
+
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+
+  vec4 vert () {
+    vec4 position;
+    CCVertInput(position);
+
+    mat4 matWorld;
+    CCGetWorldMatrix(matWorld);
+
+    
+
+
+    position = position;
+
+    v_uv = a_texCoord;
+
+    return cc_matProj * (cc_matView * matWorld) * position;
+  }
+}%
+
+CCProgram unlit-fs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+  
+  precision highp float;
+  #include <output>
+  #include <properties>
+  
+  
+  #include <shader_graph_common>
+  #include <shader_graph_shape>
+
+
+  in vec2 v_uv;
+
+  vec4 frag () {
+    vec4 o = vec4(1.);
+
+    
+
+    vec2 var_26 = tilling; // PropertyNode
+    vec2 var_1 = offset; // PropertyNode
+    vec2 var_17 = v_uv * vec2(var_26) + vec2(var_1); // TilingAndOffsetNode
+    vec2 var_12 = fract(vec2(var_17)); // FractionNode
+    float var_0 = size; // PropertyNode
+    float var_10 = rect(vec2(var_12), var_0, var_0); // RectangleNode
+
+    o.rgb *= vec3(var_10);
+    o.a *= 1.;
+
+    return CCFragOutput(o);
+  }
+}%

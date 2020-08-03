@@ -1,10 +1,12 @@
-import { getJsonObject, getFloatString } from "./utils";
+import { getJsonObject, getFloatString, getValueElement, getValueElementStr, getValueConcretePrecision } from "./utils";
+import { relative } from "path";
 
 export class ShaderPropery {
     type = {};
     data: any = {}
 
     name = '';
+    node: ShaderNode | null = null;
 
     constructor (obj: any) {
         this.type = obj.type;
@@ -38,6 +40,12 @@ export class ShaderPropery {
     }
 }
 
+export enum ConcretePrecisionType {
+    Min,
+    Max,
+    Fixed,
+}
+
 export class ShaderNode {
     type = {};
     data: any = {}
@@ -49,8 +57,10 @@ export class ShaderNode {
 
     deps: ShaderNode[] = []
 
+    depChunks: string[] = []
+
     isMasterNode = false;
-    fixedConcretePrecision = false;
+    concretePrecisionType = ConcretePrecisionType.Min;
 
     // subgraphNode: SubGraphNode | null = null;
 
@@ -67,24 +77,43 @@ export class ShaderNode {
     }
 
     addDependency (dep) {
+        if (dep === this) {
+            return;
+        }
         if (!this.deps.includes(dep)) {
             this.deps.push(dep);
         }
     }
 
     calcConcretePrecision () {
-        if (!this.fixedConcretePrecision) {
-            let minConcretePrecision = 999;
-            this.inputSlots.forEach(slot => {
-                let concretePrecision = slot.concretePrecision;
-                if (slot.connectSlot) {
-                    concretePrecision = slot.connectSlot.concretePrecision;
-                }
-                minConcretePrecision = Math.min(minConcretePrecision, concretePrecision);
-            })
+        if (this.concretePrecisionType !== ConcretePrecisionType.Fixed) {
+            let finalPrecision: number = 1;
+            if (this.concretePrecisionType === ConcretePrecisionType.Min) {
+                finalPrecision = 999;
+                this.inputSlots.forEach(slot => {
+                    let concretePrecision = slot.concretePrecision;
+                    if (slot.connectSlot) {
+                        concretePrecision = slot.connectSlot.concretePrecision;
+                    }
+                    finalPrecision = Math.min(finalPrecision, concretePrecision);
+                })
+            }
+            else if (this.concretePrecisionType === ConcretePrecisionType.Max) {
+                finalPrecision = -999;
+                this.inputSlots.forEach(slot => {
+                    let concretePrecision = slot.concretePrecision;
+                    if (slot.connectSlot) {
+                        concretePrecision = slot.connectSlot.concretePrecision;
+                    }
+                    finalPrecision = Math.max(finalPrecision, concretePrecision);
+                })
+            }
+            else {
+                console.error('Not supported ConcretePrecisionType : ' + this.concretePrecisionType);
+            }
 
             this.slots.forEach(slot => {
-                slot._concretePrecision = minConcretePrecision;
+                slot._concretePrecision = finalPrecision;
             })
         }
     }
@@ -225,16 +254,16 @@ export class ShaderSlot {
         let selfConcretePresition = this.concretePrecision;
         let defaultValue = this.data.m_Value;
 
-        let x = getFloatString(defaultValue.x);
-        let y = getFloatString(defaultValue.y);
-        let z = getFloatString(defaultValue.z);
-        let w = getFloatString(defaultValue.w);
+        let x = getValueElementStr(defaultValue, 0);
+        let y = getValueElementStr(defaultValue, 1);
+        let z = getValueElementStr(defaultValue, 2);
+        let w = getValueElementStr(defaultValue, 3);
 
         if (typeof defaultValue !== 'object') {
             x = getFloatString(defaultValue);
         }
 
-       
+
         let result = '{{value}}';
         if (selfConcretePresition === 2) {
             result = `vec2({{value}})`
@@ -252,21 +281,8 @@ export class ShaderSlot {
                 return null;
             }
 
-            if (typeof defaultValue === 'object') {
-                if (defaultValue.w !== undefined || defaultValue.a !== undefined) {
-                    valueConretePresition = 4;
-                }
-                else if (defaultValue.z !== undefined || defaultValue.b !== undefined) {
-                    valueConretePresition = 3;
-                }
-                else if (defaultValue.y !== undefined || defaultValue.g !== undefined) {
-                    valueConretePresition = 2;
-                }
-            }
-            else {
-                valueConretePresition = 1;
-            }
-            
+            valueConretePresition = getValueConcretePrecision(defaultValue);
+
             let values = [x, y, z, w];
             let concreteValues: any[] = [];
             for (let i = 0; i < selfConcretePresition; i++) {

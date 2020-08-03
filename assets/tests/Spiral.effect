@@ -1,0 +1,198 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      
+        
+
+  - name: transparent
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      
+  - name: add
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: &r1 { cullMode: none }
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one
+      
+  - name: alpha-blend
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      
+}%
+
+
+
+
+CCProgram shader_graph_common %{
+
+#define saturate(Value) clamp(Value, 0., 1.)
+#define frac(uv) fract(uv)
+
+}%
+
+
+
+CCProgram shader_graph_uv %{
+
+    vec2 polarCoordinates (vec2 uv, vec2 center, float radialScale, float lengthScale) {
+        vec2 delta = uv - center;
+        float radius = length(delta) * 2. * radialScale;
+        float angle = atan(delta.y, delta.x) * 1.0/6.28 * lengthScale;
+        return vec2(radius, angle);
+    }
+
+    vec2 rotateCoordinates (vec2 uv, vec2 center, float rotation) {
+        //rotation matrix
+        uv -= center;
+        float s = sin(rotation);
+        float c = cos(rotation);
+
+        //center rotation matrix
+        mat2 rMatrix = mat2(c, -s, s, c);
+        rMatrix *= 0.5;
+        rMatrix += 0.5;
+        rMatrix = rMatrix*2. - 1.;
+
+        //multiply the UVs by the rotation matrix
+        uv *= rMatrix;
+        uv += center;
+
+        return uv;
+    }
+
+}%
+
+
+
+CCProgram properties %{
+  uniform ShaderGraph_Properties {
+    
+    vec4 empty_value;
+
+  };
+
+  
+}%
+
+CCProgram unlit-vs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+
+  precision highp float;
+  #include <input>
+  #include <cc-global>
+  #include <cc-local-batch>
+  #include <properties>
+
+  
+  #include <shader_graph_common>
+  #include <shader_graph_uv>
+
+
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+
+  vec4 vert () {
+    vec4 position;
+    CCVertInput(position);
+
+    mat4 matWorld;
+    CCGetWorldMatrix(matWorld);
+
+    
+
+
+    position = position;
+
+    v_uv = a_texCoord;
+
+    return cc_matProj * (cc_matView * matWorld) * position;
+  }
+}%
+
+CCProgram unlit-fs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+  
+  precision highp float;
+  #include <output>
+  #include <properties>
+  
+  
+  #include <shader_graph_common>
+  #include <shader_graph_uv>
+
+
+  in vec2 v_uv;
+
+  vec4 frag () {
+    vec4 o = vec4(1.);
+
+    
+
+    vec2 var_6 = vec2(3., 3.); // SubGraphNode
+    vec2 var_7 = vec2(1.5, 1.5); // SubGraphNode
+    float var_8 = 1.; // SubGraphNode
+    float var_9 = 0.6000000238418579; // SubGraphNode
+    float var_10 = 0.5; // SubGraphNode
+     // SubGraphNode
+    vec2 var_63 = v_uv * vec2(var_6) + vec2(0., 0.); // TilingAndOffsetNode
+    vec2 var_28 = polarCoordinates(vec2(var_63), vec2(var_7), 1., 1.); // PolarCoordinatesNode
+    float var_50 = var_10 * 6.283185005187988; // MultiplyNode
+    float var_14 = vec4(var_28, 0., 0.).r; // SplitNode
+    float var_15 = vec4(var_28, 0., 0.).g; // SplitNode
+     // SplitNode
+    float var_47 = var_8 * var_50; // MultiplyNode
+    float var_20 = var_14 * 3.1415927410125732; // MultiplyNode
+    float var_44 = var_15 * var_47; // MultiplyNode
+    float var_23 = var_20 - var_44; // SubtractNode
+    float var_59 = var_50; // PreviewNode
+    float var_33 = var_23 / var_59; // DivideNode
+    float var_41 = floor(var_33 + 0.5); // RoundNode
+    float var_39 = var_33 - var_41; // SubtractNode
+    float var_57 = var_50; // PreviewNode
+    float var_36 = var_39 * var_57; // MultiplyNode
+    float var_30 = abs(var_36); // AbsoluteNode
+    float var_66 = var_30 * var_9; // MultiplyNode
+    float var_70 = smoothstep(0.4000000059604645, 0.6000000238418579, var_66); // SmoothstepNode
+
+    o.rgb *= vec3(var_70);
+    o.a *= 1.;
+
+    return CCFragOutput(o);
+  }
+}%
