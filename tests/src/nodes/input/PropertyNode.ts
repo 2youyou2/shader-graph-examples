@@ -1,4 +1,5 @@
-import { ShaderNode, ShaderPropery, ConcretePrecisionType } from "../../base";
+import { ShaderNode, ShaderPropery } from "../../base";
+import { ConcretePrecisionType } from "../../type";
 
 export default class PropertyNode extends ShaderNode {
     concretePrecisionType = ConcretePrecisionType.Fixed;

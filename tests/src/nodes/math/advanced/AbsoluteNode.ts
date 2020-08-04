@@ -1,4 +1,4 @@
-import { ShaderNode, ShaderSlotType, ShaderSlot } from "../../../base";
+import { ShaderNode, ShaderSlot } from "../../../base";
 
 export default class AbsoluteNode extends ShaderNode {
     generateCode () {

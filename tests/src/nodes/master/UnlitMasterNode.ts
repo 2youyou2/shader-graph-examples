@@ -3,8 +3,8 @@ import path from 'path';
 import MasterNode from "./MasterNode";
 
 export default class UnlitMasterNode extends MasterNode {
-    vsSlotIndices = [0, 1, 2];
-    fsSlotIndices = [3, 4, 5];
+    vsSlotIndices = ['Vertex Position', 'Vertex Normal', 'Vertex Tangent'];
+    fsSlotIndices = ['Color', 'Alpha', 'AlphaClipThreshold'];
 
     templatePath = path.join(__dirname, '../../../templates/master/UnlitMasterNode.effect')
 }

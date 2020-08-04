@@ -1,4 +1,5 @@
-import { ShaderNode, ShaderSlotType, ShaderSlot, ConcretePrecisionType } from "../../../base";
+import { ShaderNode } from "../../../base";
+import { ConcretePrecisionType } from "../../../type";
 
 export default class RandomRangeNode extends ShaderNode {
     concretePrecisionType = ConcretePrecisionType.Fixed;

@@ -1,8 +1,8 @@
-import { ShaderNode, ShaderSlot, ShaderPropery, ConcretePrecisionType } from "../../base";
+import { ShaderNode, ShaderSlot, ShaderPropery } from "../../base";
 import fs from 'fs';
 import path from 'path';
 import { ShaderGraph } from "../../shadergraph";
-import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from "constants";
+import { ConcretePrecisionType } from "../../type";
 
 function findConnectNodes (slot: ShaderSlot, nodes: ShaderNode[]) {
     if (!slot.connectSlot) return;
@@ -24,8 +24,8 @@ function findConnectNodes (slot: ShaderSlot, nodes: ShaderNode[]) {
 
 export default class MasterNode extends ShaderNode {
 
-    vsSlotIndices: number[] = [];
-    fsSlotIndices: number[] = [];
+    vsSlotIndices: string[] = [];
+    fsSlotIndices: string[] = [];
 
     templatePath = '';
 
@@ -34,8 +34,15 @@ export default class MasterNode extends ShaderNode {
 
     properties: ShaderPropery[] = [];
 
-    getConnectNodes (slotIndices: number[]) {
-        let inputSlots = slotIndices.map(i => this.slots[i]);
+    getConnectNodes (slotIndices: string[]) {
+        let inputSlots: ShaderSlot[] = [];
+        slotIndices.forEach(name => {
+            let slot = this.getSlotWithSlotName(name)
+            if (slot) {
+                inputSlots.push(slot)
+            }
+        });
+
         let nodes: ShaderNode[] = [];
         inputSlots.forEach(slot => {
             findConnectNodes(slot, nodes);
@@ -184,8 +191,8 @@ export default class MasterNode extends ShaderNode {
         code = code.replace('{{properties_sampler}}', props.uniformSampler);
         code = code.replace('{{properties_mtl}}', props.mtl);
 
-        this.inputSlots.forEach((slot, index) => {
-            var tempName = `slot_${index}`;
+        this.inputSlots.forEach(slot => {
+            var tempName = `slot_${slot.displayName.replace(/ /g, '_')}`;
             let value = slot.slotValue;
             let reg = new RegExp(`{{${tempName} *=* *(.*)}}`);
             if (!value) {

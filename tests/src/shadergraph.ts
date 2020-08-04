@@ -1,4 +1,4 @@
-import { ShaderPropery, ShaderNode, ShaderEdge, resetGlobalShaderSlotID, ShaderSlotType } from "./base";
+import { ShaderPropery, ShaderNode, ShaderEdge, resetGlobalShaderSlotID } from "./base";
 import { getJsonObject } from "./utils";
 import { createNode } from "./nodes";
 import MasterNode from "./nodes/master/MasterNode";

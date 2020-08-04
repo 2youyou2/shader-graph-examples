@@ -1,5 +1,6 @@
 import { getJsonObject, getFloatString, getValueElement, getValueElementStr, getValueConcretePrecision } from "./utils";
 import { relative } from "path";
+import { ConcretePrecisionType, TextureConcretePrecision } from "./type";
 
 export class ShaderPropery {
     type = {};
@@ -40,11 +41,7 @@ export class ShaderPropery {
     }
 }
 
-export enum ConcretePrecisionType {
-    Min,
-    Max,
-    Fixed,
-}
+
 
 export class ShaderNode {
     type = {};
@@ -107,6 +104,9 @@ export class ShaderNode {
                     }
                     finalPrecision = Math.max(finalPrecision, concretePrecision);
                 })
+            }
+            else if (this.concretePrecisionType === ConcretePrecisionType.Texture) {
+                finalPrecision = TextureConcretePrecision;
             }
             else {
                 console.error('Not supported ConcretePrecisionType : ' + this.concretePrecisionType);
@@ -218,6 +218,9 @@ export class ShaderSlot {
         }
         else if (this.concretePrecision === 4) {
             precision = 'vec4';
+        }
+        else if (this.concretePrecision === TextureConcretePrecision) {
+            precision = 'sampler2D';
         }
         if (precision) {
             precision += ' ';

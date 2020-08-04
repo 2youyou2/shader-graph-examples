@@ -86,7 +86,7 @@ CCProgram unlit-vs %{
 
     {{vs}}
 
-    position = {{slot_0 = position}};
+    position = {{slot_Vertex_Position = position}};
 
     v_uv = a_texCoord;
 
@@ -112,8 +112,8 @@ CCProgram unlit-fs %{
 
     {{fs}}
 
-    o.rgb *= {{slot_3 = vec3(1.)}};
-    o.a *= {{slot_4 = 1.}};
+    o.rgb *= {{slot_Color = vec3(1.)}};
+    o.a *= {{slot_Alpha = 1.}};
 
     return CCFragOutput(o);
   }

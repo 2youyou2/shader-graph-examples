@@ -1,4 +1,4 @@
-import { ShaderNode, ShaderSlotType, ShaderSlot } from "../../../base";
+import { ShaderNode } from "../../../base";
 
 export default class RadiansToDegreesNode extends ShaderNode {
     generateCode () {

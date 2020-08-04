@@ -1,4 +1,5 @@
-import { ShaderNode, ConcretePrecisionType } from "../../base";
+import { ShaderNode } from "../../base";
+import { ConcretePrecisionType } from "../../type";
 
 export default class PolarCoordinatesNode extends ShaderNode {
     concretePrecisionType = ConcretePrecisionType.Fixed;

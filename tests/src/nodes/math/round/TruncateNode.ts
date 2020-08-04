@@ -1,4 +1,4 @@
-import { ShaderNode, ShaderSlotType, ShaderSlot } from "../../../base";
+import { ShaderNode } from "../../../base";
 
 export default class TruncateNode extends ShaderNode {
     generateCode () {

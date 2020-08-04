@@ -1,9 +1,10 @@
-import { ShaderNode, ShaderSlot, ShaderPropery, ShaderEdgeSlot, ConcretePrecisionType } from "../../base";
+import { ShaderNode, ShaderSlot, ShaderPropery, ShaderEdgeSlot } from "../../base";
 import globby from 'globby'
 import path from 'path'
 import { ShaderGraph } from "../../shadergraph";
 import SubGraphOutputNode from "./SubGraphOutputNode";
 import PropertyNode from "../input/PropertyNode";
+import { ConcretePrecisionType } from "../../type";
 
 export default class SubGraphNode extends ShaderNode {
     nodes: ShaderNode[] = []
