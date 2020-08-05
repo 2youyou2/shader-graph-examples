@@ -3,8 +3,9 @@ import { ConcretePrecisionType } from "../../type";
 
 export default class PropertyNode extends ShaderNode {
     concretePrecisionType = ConcretePrecisionType.Fixed;
-
     property: ShaderPropery | null = null;
+
+    isPropertyNode = true;
 
     searchProperties (properties) {
         this.property = properties.find(p => {
@@ -16,8 +17,8 @@ export default class PropertyNode extends ShaderNode {
         }
     }
 
-    generateCode () {
-        return `${this.getOutputVarDefine(0)} = ${this.property?.name};`;
-    }
+    // generateCode () {
+    //     return `${this.getOutputVarDefine(0)} = ${this.property?.name};`;
+    // }
 }
 

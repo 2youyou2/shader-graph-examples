@@ -42,7 +42,6 @@ CCProgram pbr-vs %{
   #include <input-standard>
   #include <cc-global>
   #include <cc-local-batch>
-  #include <shared-ubos>
   #include <properties>
 
   #if USE_VERTEX_COLOR
@@ -87,14 +86,13 @@ CCProgram pbr-vs %{
 
     v_position = position.xyz;
     v_normal = normalize((matWorldIT * vec4(normal, 0.0)).xyz);
-    #if USE_NORMAL_MAP
-      v_tangent = normalize((matWorld * vec4(tangent.xyz, 0.0)).xyz);
-      v_bitangent = cross(v_normal, v_tangent) * tangent.w; // note the cross order
-    #endif
+    
+    v_tangent = normalize((matWorld * vec4(tangent.xyz, 0.0)).xyz);
+    v_bitangent = cross(v_normal, v_tangent) * tangent.w; // note the cross order
 
-    v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+    v_uv = a_texCoord;
     #if HAS_SECOND_UV
-      v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
+      v_uv1 = a_texCoord1;
     #endif
 
     #if USE_VERTEX_COLOR
@@ -118,7 +116,6 @@ CCProgram pbr-fs %{
   #include <shading-standard>
   #include <output-standard>
   #include <gamma>
-  #include <shared-ubos>
   #include <properties>
   
   {{fs_chunks}}
@@ -128,11 +125,8 @@ CCProgram pbr-fs %{
   in vec2 v_uv1;
   in vec3 v_normal;
 
-  #if USE_NORMAL_MAP
-    in vec3 v_tangent;
-    in vec3 v_bitangent;
-    uniform sampler2D normalMap;
-  #endif
+  in vec3 v_tangent;
+  in vec3 v_bitangent;
 
   #if USE_LIGHTMAP
     in vec2 v_luv;
@@ -143,26 +137,18 @@ CCProgram pbr-fs %{
   void surf (out StandardSurface s) {
     {{fs}}
 
-    s.albedo.rgb = {{slot_Albedo = vec3(1.)}};
-
-    s.normal = v_normal;
-    #if USE_NORMAL_MAP
-      vec3 nmmp = {{slot_Normal = vec3(1.)}};
-      s.normal =
-        (nmmp.x * pbrParams.w) * normalize(v_tangent) +
-        (nmmp.y * pbrParams.w) * normalize(v_bitangent) +
-        nmmp.z * normalize(s.normal);
-    #endif
-
-    s.emissive  = {{slot_Emission = vec3(0.)}};
-    s.metallic  = {{slot_Metallic = 0.6}};
-    s.roughness = {{slot_Smoothness = 0.4}};
-    s.occlusion = {{slot_Occlusion = 1.}};
     s.albedo.a  = {{slot_Alpha = 1.}};
-
     if (s.albedo.a <= {{slot_AlphaClipThreshold = 0.}}) {
       discard;
     }
+
+    s.albedo.rgb = {{slot_Albedo = vec3(1.)}};
+    s.normal    = {{slot_Normal = v_normal}};
+    s.position  = v_position;
+    s.emissive  = {{slot_Emission = vec3(0.)}};
+    s.metallic  = {{slot_Metallic = 0.6}};
+    s.roughness = clamp({{slot_Smoothness = 0.4}}, 0.04, 1.0);
+    s.occlusion = clamp({{slot_Occlusion = 1.}}, 0., 0.96);
   }
 
   vec4 frag () {

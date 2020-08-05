@@ -2,7 +2,7 @@ import { ShaderNode, ShaderSlot, ShaderPropery } from "../../base";
 import fs from 'fs';
 import path from 'path';
 import { ShaderGraph } from "../../shadergraph";
-import { ConcretePrecisionType } from "../../type";
+import { ConcretePrecisionType, TextureConcretePrecision } from "../../type";
 
 function findConnectNodes (slot: ShaderSlot, nodes: ShaderNode[]) {
     if (!slot.connectSlot) return;
@@ -89,6 +89,8 @@ export default class MasterNode extends ShaderNode {
             return b.concretePrecision - a.concretePrecision;
         })
 
+        let blockUniformCount = 0;
+
         properties.forEach(p => {
             let precision = '';
             let mtlValue = '';
@@ -118,14 +120,24 @@ export default class MasterNode extends ShaderNode {
                 precision = 'vec4';
                 mtlValue = `[${x}, ${y}, ${z},  ${w}]`
             }
+            else if (concretePrecision === TextureConcretePrecision.Texture2D) {
+                precision = 'sampler2D'
+                mtlValue = 'white'
+            }
 
             let editorStr = isColor ? `, editor: { type: color }` : ''
 
-            uniform += `    ${precision} ${p.name};\n`;
+            if (concretePrecision < TextureConcretePrecision.Texture2D) {
+                uniform += `    ${precision} ${p.name};\n`;
+                blockUniformCount++;
+            }
+            else {
+                uniformSampler += `  uniform ${precision} ${p.name};\n`;
+            }
             mtl += `        ${p.name}: { value: ${mtlValue} ${editorStr}}\n`
         })
 
-        if (properties.length === 0) {
+        if (blockUniformCount === 0) {
             uniform += '    vec4 empty_value;\n'
         }
 

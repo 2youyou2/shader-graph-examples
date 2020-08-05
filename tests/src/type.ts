@@ -6,4 +6,7 @@ export enum ConcretePrecisionType {
     Texture,
 }
 
-export const TextureConcretePrecision = 100; 
+export enum TextureConcretePrecision {
+    Texture2D = 100,
+    TextureCube = 101
+}; 

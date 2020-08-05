@@ -1,4 +1,4 @@
-import { getJsonObject, getFloatString, getValueElement, getValueElementStr, getValueConcretePrecision } from "./utils";
+import { getJsonObject, getFloatString, getValueElement, getValueElementStr, getValueConcretePrecision, getPrecisionName } from "./utils";
 import { relative } from "path";
 import { ConcretePrecisionType, TextureConcretePrecision } from "./type";
 
@@ -57,6 +57,7 @@ export class ShaderNode {
     depChunks: string[] = []
 
     isMasterNode = false;
+    isPropertyNode = false;
     concretePrecisionType = ConcretePrecisionType.Min;
 
     // subgraphNode: SubGraphNode | null = null;
@@ -106,7 +107,7 @@ export class ShaderNode {
                 })
             }
             else if (this.concretePrecisionType === ConcretePrecisionType.Texture) {
-                finalPrecision = TextureConcretePrecision;
+                finalPrecision = TextureConcretePrecision.Texture2D;
             }
             else {
                 console.error('Not supported ConcretePrecisionType : ' + this.concretePrecisionType);
@@ -202,30 +203,18 @@ export class ShaderSlot {
     }
 
     get varName () {
+        if (this.node?.isPropertyNode) {
+            return this.node.property.name;
+        }
         return 'var_' + this.globalID;
     }
 
     get varDefine () {
-        let precision = '';
-        if (this.concretePrecision === 1) {
-            precision = 'float';
+        let name = getPrecisionName(this.concretePrecision);
+        if (name) {
+            name += ' ';
         }
-        else if (this.concretePrecision === 2) {
-            precision = 'vec2';
-        }
-        else if (this.concretePrecision === 3) {
-            precision = 'vec3';
-        }
-        else if (this.concretePrecision === 4) {
-            precision = 'vec4';
-        }
-        else if (this.concretePrecision === TextureConcretePrecision) {
-            precision = 'sampler2D';
-        }
-        if (precision) {
-            precision += ' ';
-        }
-        return precision + this.varName;
+        return name + this.varName;
     }
 
     get defaultValue () {
@@ -358,20 +347,16 @@ export class ShaderSlot {
     _concretePrecision = -1;
     get concretePrecision () {
         if (this._concretePrecision === -1) {
-            this._concretePrecision = 1;
-
             let value = this.data.m_Value;
-            if (typeof value === 'object') {
-                if (value.w !== undefined) {
-                    this._concretePrecision = 4;
-                }
-                else if (value.z !== undefined) {
-                    this._concretePrecision = 3;
-                }
-                else if (value.y !== undefined) {
-                    this._concretePrecision = 2;
+            if (value === undefined) {
+                if (this.node?.isPropertyNode) {
+                    value = this.node.property.data.m_Value;
                 }
             }
+            if (value === undefined) {
+                console.error('Slot Value is undefined, concrete precision maybe wrong.');
+            }
+            this._concretePrecision = getValueConcretePrecision(value);
         }
         return this._concretePrecision;
     }

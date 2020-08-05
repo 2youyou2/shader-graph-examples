@@ -7,7 +7,9 @@ CCEffect %{
       frag: pbr-fs:frag
       properties: &props
         
-        albedo: { value: [object Object] }
+        albedo: { value: white }
+        metallicaAndSmooth: { value: white }
+        normal: { value: white }
 
   - name: transparent
     passes:
@@ -30,7 +32,7 @@ CCEffect %{
 
 CCProgram shader_graph_common %{
 
-#define saturate(Value) clamp(Value, 0., 1.)
+#include <common>
 #define frac(uv) fract(uv)
 
 }%
@@ -40,11 +42,14 @@ CCProgram shader_graph_common %{
 CCProgram properties %{
   uniform ShaderGraph_Properties {
     
-    float albedo;
+    vec4 empty_value;
 
   };
 
-  
+    uniform sampler2D albedo;
+  uniform sampler2D metallicaAndSmooth;
+  uniform sampler2D normal;
+
 }%
 
 CCProgram pbr-vs %{
@@ -56,7 +61,6 @@ CCProgram pbr-vs %{
   #include <input-standard>
   #include <cc-global>
   #include <cc-local-batch>
-  #include <shared-ubos>
   #include <properties>
 
   #if USE_VERTEX_COLOR
@@ -102,14 +106,13 @@ CCProgram pbr-vs %{
 
     v_position = position.xyz;
     v_normal = normalize((matWorldIT * vec4(normal, 0.0)).xyz);
-    #if USE_NORMAL_MAP
-      v_tangent = normalize((matWorld * vec4(tangent.xyz, 0.0)).xyz);
-      v_bitangent = cross(v_normal, v_tangent) * tangent.w; // note the cross order
-    #endif
+    
+    v_tangent = normalize((matWorld * vec4(tangent.xyz, 0.0)).xyz);
+    v_bitangent = cross(v_normal, v_tangent) * tangent.w; // note the cross order
 
-    v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+    v_uv = a_texCoord;
     #if HAS_SECOND_UV
-      v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
+      v_uv1 = a_texCoord1;
     #endif
 
     #if USE_VERTEX_COLOR
@@ -133,7 +136,6 @@ CCProgram pbr-fs %{
   #include <shading-standard>
   #include <output-standard>
   #include <gamma>
-  #include <shared-ubos>
   #include <properties>
   
   
@@ -145,11 +147,8 @@ CCProgram pbr-fs %{
   in vec2 v_uv1;
   in vec3 v_normal;
 
-  #if USE_NORMAL_MAP
-    in vec3 v_tangent;
-    in vec3 v_bitangent;
-    uniform sampler2D normalMap;
-  #endif
+  in vec3 v_tangent;
+  in vec3 v_bitangent;
 
   #if USE_LIGHTMAP
     in vec2 v_luv;
@@ -160,37 +159,36 @@ CCProgram pbr-fs %{
   void surf (out StandardSurface s) {
     
 
-    vec4 var_4 = vec4(1.); // SampleTexture2DNode
-    float var_5 = var_4.r; // SampleTexture2DNode
+     // PropertyNode
+    vec4 var_5 = texture(metallicaAndSmooth, v_uv); // SampleTexture2DNode
+    float var_6 = var_5.r; // SampleTexture2DNode
      // SampleTexture2DNode
-    float var_41 = albedo; // PropertyNode
-     // ShaderNode
-    vec4 var_22 = texture(var_41, v_uv); // SampleTexture2DNode
+     // PropertyNode
+     // PropertyNode
+    float var_14 = float(1. - var_6); // InvertColorsNode
+    vec4 var_23 = texture(albedo, v_uv); // SampleTexture2DNode
      // SampleTexture2DNode
-    vec4 var_14 = vec4(1.); // SampleTexture2DNode
+    vec4 var_15 = texture(normal, v_uv); // SampleTexture2DNode
+    var_15.xyz -= vec3(0.5); // SampleTexture2DNode
+    var_15.xyz =  // SampleTexture2DNode
+      var_15.x * normalize(v_tangent) + // SampleTexture2DNode
+      var_15.y * normalize(v_bitangent) + // SampleTexture2DNode
+      var_15.z * normalize(v_normal); // SampleTexture2DNode
      // SampleTexture2DNode
-    vec4 var_3 = vec2(0.10000000149011612, 0.6499999761581421).x + (vec4(var_13) - vec2(0., 1.).x) * (vec2(0.10000000149011612, 0.6499999761581421).y - vec2(0.10000000149011612, 0.6499999761581421).x) / (vec2(0., 1.).y - vec2(0., 1.).x); // RemapNode
+    vec4 var_4 = vec2(0.10000000149011612, 0.6499999761581421).x + (vec4(var_14) - vec2(0., 1.).x) * (vec2(0.10000000149011612, 0.6499999761581421).y - vec2(0.10000000149011612, 0.6499999761581421).x) / (vec2(0., 1.).y - vec2(0., 1.).x); // RemapNode
 
-    s.albedo.rgb = vec3(var_22.xyz);
-
-    s.normal = v_normal;
-    #if USE_NORMAL_MAP
-      vec3 nmmp = vec3(var_14.xyz);
-      s.normal =
-        (nmmp.x * pbrParams.w) * normalize(v_tangent) +
-        (nmmp.y * pbrParams.w) * normalize(v_bitangent) +
-        nmmp.z * normalize(s.normal);
-    #endif
-
-    s.emissive  = vec3(0.);
-    s.metallic  = var_13;
-    s.roughness = var_3.x;
-    s.occlusion = 1.;
     s.albedo.a  = 1.;
-
     if (s.albedo.a <= 0.) {
       discard;
     }
+
+    s.albedo.rgb = vec3(var_23.xyz);
+    s.normal    = vec3(var_15.xyz);
+    s.position  = v_position;
+    s.emissive  = vec3(0.);
+    s.metallic  = var_14;
+    s.roughness = clamp(var_4.x, 0.04, 1.0);
+    s.occlusion = clamp(1., 0., 0.96);
   }
 
   vec4 frag () {

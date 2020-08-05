@@ -1,3 +1,4 @@
+import { TextureConcretePrecision } from "./type";
 
 export function getJsonObject (str: string) {
     let content;
@@ -64,6 +65,29 @@ export function getValueConcretePrecision (value) {
         else if (value.y !== undefined || value.g !== undefined) {
             valueConretePresition = 2;
         }
+        else if (value.m_SerializedTexture) {
+            valueConretePresition = TextureConcretePrecision.Texture2D;
+        }
     }
     return valueConretePresition;
+}
+
+export function getPrecisionName (precision: number) {
+    let name = '';
+    if (precision === 1) {
+        name = 'float';
+    }
+    else if (precision === 2) {
+        name = 'vec2';
+    }
+    else if (precision === 3) {
+        name = 'vec3';
+    }
+    else if (precision === 4) {
+        name = 'vec4';
+    }
+    else if (precision === TextureConcretePrecision.Texture2D) {
+        name = 'sampler2D';
+    }
+    return name;
 }

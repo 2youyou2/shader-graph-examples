@@ -2,7 +2,7 @@
 
 CCProgram shader_graph_common %{
 
-#define saturate(Value) clamp(Value, 0., 1.)
+#include <common>
 #define frac(uv) fract(uv)
 
 }%
