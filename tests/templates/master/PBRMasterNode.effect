@@ -52,10 +52,8 @@ CCProgram pbr-vs %{
   out vec3 v_position;
   out vec3 v_normal;
   
-  #if USE_NORMAL_MAP
-    out vec3 v_tangent;
-    out vec3 v_bitangent;
-  #endif
+  out vec3 v_tangent;
+  out vec3 v_bitangent;
 
   in vec2 a_texCoord;
   out vec2 v_uv;
@@ -147,7 +145,7 @@ CCProgram pbr-fs %{
     s.position  = v_position;
     s.emissive  = {{slot_Emission = vec3(0.)}};
     s.metallic  = {{slot_Metallic = 0.6}};
-    s.roughness = clamp({{slot_Smoothness = 0.4}}, 0.04, 1.0);
+    s.roughness = clamp(1. - {{slot_Smoothness = 0.4}}, 0.04, 1.0);
     s.occlusion = clamp({{slot_Occlusion = 1.}}, 0., 0.96);
   }
 

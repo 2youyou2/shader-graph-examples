@@ -1,0 +1,40 @@
+{
+  "ver": "1.0.18",
+  "importer": "image",
+  "imported": true,
+  "uuid": "12d71723-1e37-4e05-af5d-e5c33c7e01b1",
+  "files": [
+    ".png",
+    ".json"
+  ],
+  "subMetas": {
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "12d71723-1e37-4e05-af5d-e5c33c7e01b1@6c48a",
+      "displayName": "gebco_08_rev_bath",
+      "id": "6c48a",
+      "name": "texture",
+      "ver": "1.0.19",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {},
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "premultiplyAlpha": false,
+        "anisotropy": 1,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "12d71723-1e37-4e05-af5d-e5c33c7e01b1"
+      }
+    }
+  },
+  "userData": {
+    "type": "texture",
+    "redirect": "12d71723-1e37-4e05-af5d-e5c33c7e01b1@6c48a"
+  }
+}

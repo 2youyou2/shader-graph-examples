@@ -201,17 +201,41 @@ export default class MasterNode extends ShaderNode {
         let props = this.generatePropertiesCode();
         code = code.replace('{{properties}}', props.uniform);
         code = code.replace('{{properties_sampler}}', props.uniformSampler);
-        code = code.replace('{{properties_mtl}}', props.mtl);
+        code = code.replace('{{properties_mtl}}', props.mtl); 
+
+        
+        // old shader graph version do not have vertex slots
+        let vertexSlotNames = ['Vertex Position', 'Vertex Normal', 'Vertex Tangent', 'Position'];
 
         this.inputSlots.forEach(slot => {
             var tempName = `slot_${slot.displayName.replace(/ /g, '_')}`;
-            let value = slot.slotValue;
+            let value;
+            if (vertexSlotNames.includes(slot.displayName) || slot.displayName === 'Normal') {
+                if (slot.connectSlot) {
+                    value = slot.slotValue;
+                }
+            }
+            else {
+                value = slot.slotValue;
+            }
+            
             let reg = new RegExp(`{{${tempName} *=* *(.*)}}`);
-            if (!value) {
+            if (value === undefined) {
                 let res = reg.exec(code);
                 if (res) {
                     value = res[1];
                 }
+            }
+            code = code.replace(reg, value);
+        })
+        
+        vertexSlotNames.forEach(name => {
+            var tempName = `slot_${name.replace(/ /g, '_')}`;
+            let value = '';
+            let reg = new RegExp(`{{${tempName} *=* *(.*)}}`);
+            let res = reg.exec(code);
+            if (res) {
+                value = res[1];
             }
             code = code.replace(reg, value);
         })

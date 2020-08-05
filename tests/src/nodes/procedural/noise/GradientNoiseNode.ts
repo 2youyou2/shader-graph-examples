@@ -1,7 +1,7 @@
 import { ShaderNode } from "../../../base";
 import { ConcretePrecisionType } from "../../../type";
 
-export default class NoiseNode extends ShaderNode {
+export default class GradientNoiseNode extends ShaderNode {
     concretePrecisionType = ConcretePrecisionType.Fixed;
 
     depChunks = ['noise']
@@ -9,6 +9,6 @@ export default class NoiseNode extends ShaderNode {
     generateCode () {
         let uv = this.getInputValue(0);
         let scale = this.getInputValue(1);
-        return `${this.getOutputVarDefine(0)} = simpleNoise(${uv}, ${scale});`;
+        return `${this.getOutputVarDefine(0)} = gradientNoise(${uv}, ${scale});`;
     }
 }

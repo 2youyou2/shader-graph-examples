@@ -269,10 +269,6 @@ export class ShaderSlot {
         let value = '';
 
         if (!this.connectSlot) {
-            if (this.node?.isMasterNode) {
-                return null;
-            }
-
             valueConretePresition = getValueConcretePrecision(defaultValue);
 
             let values = [x, y, z, w];

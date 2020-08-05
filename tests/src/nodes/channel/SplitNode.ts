@@ -4,14 +4,6 @@ import { ConcretePrecisionType } from "../../type";
 export default class SplitNode extends ShaderNode {
     concretePrecisionType = ConcretePrecisionType.Fixed;
 
-    constructor (data) {
-        super(data);
-    }
-
-    calcConcretePrecision () {
-        super.calcConcretePrecision()
-    }
-
     generateCode () {
         let Value = this.getInputValue(0);
         let code = '';

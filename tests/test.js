@@ -10,7 +10,7 @@ const globby = require('globby');
 let graphDir = path.join(__dirname, './tests');
 shadergraph.ShaderGraph.subgraphPath = graphDir;
 
-let paths = globby.sync([path.join(graphDir, '**/*.shadergraph').replace(/\\/g, '/'), path.join(graphDir, '**/*.ShaderGraph').replace(/\\/g, '/')]);
+let paths = globby.sync([path.join(graphDir, '**/Globe.shadergraph').replace(/\\/g, '/'), path.join(graphDir, '**/Globe.ShaderGraph').replace(/\\/g, '/')]);
 paths.forEach(graphPath => {
     let relPath = path.relative(graphDir, graphPath);
     content = shadergraph.ShaderGraph.decode(graphPath);

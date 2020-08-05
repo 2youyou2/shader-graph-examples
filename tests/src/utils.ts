@@ -65,7 +65,7 @@ export function getValueConcretePrecision (value) {
         else if (value.y !== undefined || value.g !== undefined) {
             valueConretePresition = 2;
         }
-        else if (value.m_SerializedTexture) {
+        else if (value.m_SerializedTexture !== undefined) {
             valueConretePresition = TextureConcretePrecision.Texture2D;
         }
     }

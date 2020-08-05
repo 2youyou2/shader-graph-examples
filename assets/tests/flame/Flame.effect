@@ -1,0 +1,248 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      properties: &props
+        
+        FlameeTexture: { value: white }
+        RampTexture: { value: white }
+
+  - name: transparent
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+  - name: add
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: &r1 { cullMode: none }
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one
+      properties: *props
+  - name: alpha-blend
+    passes:
+    - vert: unlit-vs:vert
+      frag: unlit-fs:frag
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+}%
+
+
+
+
+CCProgram shader_graph_common %{
+
+#include <common>
+#define frac(uv) fract(uv)
+#define lerp(min, max, t) mix(min, max, t)
+
+}%
+
+CCProgram shader_graph_noise %{
+
+float noise_randomValue (vec2 uv)
+{
+    return fract(sin(dot(uv, vec2(12.9898, 78.233)))*43758.5453);
+}
+
+float noise_interpolate (float a, float b, float t)
+{
+    return (1.0-t)*a + (t*b);
+}
+
+float simpleNoise_valueNoise (vec2 uv)
+{
+    vec2 i = floor(uv);
+    vec2 f = fract(uv);
+    f = f * f * (3.0 - 2.0 * f);
+
+    uv = abs(fract(uv) - 0.5);
+    vec2 c0 = i + vec2(0.0, 0.0);
+    vec2 c1 = i + vec2(1.0, 0.0);
+    vec2 c2 = i + vec2(0.0, 1.0);
+    vec2 c3 = i + vec2(1.0, 1.0);
+    float r0 = noise_randomValue(c0);
+    float r1 = noise_randomValue(c1);
+    float r2 = noise_randomValue(c2);
+    float r3 = noise_randomValue(c3);
+
+    float bottomOfGrid = noise_interpolate(r0, r1, f.x);
+    float topOfGrid = noise_interpolate(r2, r3, f.x);
+    float t = noise_interpolate(bottomOfGrid, topOfGrid, f.y);
+    return t;
+}
+
+float simpleNoise (vec2 uv, float scale) {
+    float t = 0.0;
+
+    float freq = pow(2.0, 0.);
+    float amp = pow(0.5, 3.);
+    t += simpleNoise_valueNoise(vec2(uv.x*scale/freq, uv.y*scale/freq))*amp;
+
+    freq = pow(2.0, 1.);
+    amp = pow(0.5, 3.-1.);
+    t += simpleNoise_valueNoise(vec2(uv.x*scale/freq, uv.y*scale/freq))*amp;
+
+    freq = pow(2.0, 2.);
+    amp = pow(0.5, 3.-2.);
+    t += simpleNoise_valueNoise(vec2(uv.x*scale/freq, uv.y*scale/freq))*amp;
+
+    return t;
+}
+
+vec2 gradientNoiseDir (vec2 p) {
+    // Permutation and hashing used in webgl-nosie goo.gl/pX7HtC
+    p = p % 289.;
+    float x = (34. * p.x + 1.) * p.x % 289. + p.y;
+    x = (34. * x + 1.) * x % 289.;
+    x = frac(x / 41.) * 2. - 1.;
+    return normalize(vec2(x - floor(x + 0.5), abs(x) - 0.5));
+}
+
+
+float gradientNoise (vec2 uv, float scale) {
+    vec2 p = UV * Scale;
+    vec2 ip = floor(p);
+    vec2 fp = frac(p);
+    float d00 = dot(gradientNoiseDir(ip), fp);
+    float d01 = dot(gradientNoiseDir(ip + vec2(0., 1.)), fp - vec2(0., 1.));
+    float d10 = dot(gradientNoiseDir(ip + vec2(1., 0.)), fp - vec2(1., 0.));
+    float d11 = dot(gradientNoiseDir(ip + vec2(1., 1.)), fp - $precision2(1., 1.));
+    fp = fp * fp * fp * (fp * (fp * 6. - 15.) + 10.);
+    return lerp(lerp(d00, d01, fp.y), lerp(d10, d11, fp.y), fp.x) + 0.5;
+}
+
+}%
+
+
+
+CCProgram properties %{
+  uniform ShaderGraph_Properties {
+    
+    vec4 empty_value;
+
+  };
+
+    uniform sampler2D FlameeTexture;
+  uniform sampler2D RampTexture;
+
+}%
+
+CCProgram unlit-vs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+
+  precision highp float;
+  #include <input>
+  #include <cc-global>
+  #include <cc-local-batch>
+  #include <properties>
+
+  
+  #include <shader_graph_common>
+  #include <shader_graph_noise>
+
+
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+
+  vec4 vert () {
+    vec4 position;
+    CCVertInput(position);
+
+    mat4 matWorld;
+    CCGetWorldMatrix(matWorld);
+
+    
+
+
+    position = position;
+
+    v_uv = a_texCoord;
+
+    return cc_matProj * (cc_matView * matWorld) * position;
+  }
+}%
+
+CCProgram unlit-fs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+  
+  precision highp float;
+  #include <output>
+  #include <properties>
+  
+  
+  #include <shader_graph_common>
+  #include <shader_graph_noise>
+
+
+  in vec2 v_uv;
+
+  vec4 frag () {
+    vec4 o = vec4(1.);
+
+    
+
+    float var_37 = cc_time.x; // TimeNode
+    vec2 var_48 = vec2(0.10000000149011612, -0.20000000298023224); // Vector2Node
+    vec2 var_42 = v_uv; // UVNode
+    vec2 var_51 = vec2(var_37) * vec2(var_48); // MultiplyNode
+    vec2 var_45 = vec2(var_42) + vec2(var_51); // AddNode
+    float var_80 = simpleNoise(vec2(var_45), 50.); // NoiseNode
+    float var_21 = cc_time.x; // TimeNode
+    vec2 var_20 = v_uv; // UVNode
+    vec2 var_74 = vec2(var_80, var_21); // CombineNode
+     // CombineNode
+    vec2 var_54 = vec2(var_20) * vec2(0.699999988079071, 0.5); // MultiplyNode
+    vec2 var_77 = vec2(var_74) * vec2(0.1599999964237213, -0.30000001192092896); // MultiplyNode
+     // PropertyNode
+    vec2 var_28 = vec2(var_54) + vec2(var_77); // AddNode
+    vec2 var_14 = v_uv; // UVNode
+     // PropertyNode
+    vec4 var_6 = texture(FlameeTexture, vec2(var_28)); // SampleTexture2DNode
+    float var_7 = var_6.r; // SampleTexture2DNode
+     // SampleTexture2DNode
+    float var_17 = vec4(var_14, 0., 0.).g; // SplitNode
+     // SplitNode
+    vec4 var_29 = texture(RampTexture, vec2(var_7)); // SampleTexture2DNode
+     // SampleTexture2DNode
+    float var_62 = smoothstep(0.5, 1., var_17); // SmoothstepNode
+    vec4 var_67 = vec4(var_29) * vec4(3., 3., 3., 1.); // MultiplyNode
+    float var_58 = smoothstep(var_62, 1., var_7); // SmoothstepNode
+
+    o.rgb *= vec3(var_67.xyz);
+    o.a *= var_58;
+
+    return CCFragOutput(o);
+  }
+}%
