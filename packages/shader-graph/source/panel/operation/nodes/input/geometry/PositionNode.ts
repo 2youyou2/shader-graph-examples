@@ -17,6 +17,7 @@ export default class PositionNode extends ShaderNode {
         }
         else if (this.data.m_Space === PositionSpace.Tangent) {
             varing = 'PositionSpace.Tangent';
+            console.error('Not support Tangent Position');
         }
         else if (this.data.m_Space === PositionSpace.World) {
             varing = 'PositionSpace.World';
@@ -43,7 +44,8 @@ export default class PositionNode extends ShaderNode {
             name = 'v_viewPos';
         }
         else if (this.data.m_Space === PositionSpace.Tangent) {
-            name = 'v_tangentPos';
+            // name = 'v_tangentPos';
+            name = 'v_worldPos';
         }
         else if (this.data.m_Space === PositionSpace.World) {
             name = 'v_worldPos';

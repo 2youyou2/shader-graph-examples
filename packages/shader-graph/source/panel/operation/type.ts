@@ -19,3 +19,10 @@ export enum PositionSpace {
     Tangent,
     AbsoluteWorld
 }
+
+export enum NormalSpace {
+    Object,
+    View,
+    World,
+    Tangent,
+}

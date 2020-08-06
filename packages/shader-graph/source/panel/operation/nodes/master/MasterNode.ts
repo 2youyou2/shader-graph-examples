@@ -224,7 +224,10 @@ export default class MasterNode extends ShaderNode {
                 
             }
             else if (varing === 'object normal') {
-                
+                vs_varing_define += 'out vec3 v_normal;\n'
+                vs_varing += 'v_normal = normal;\n';
+                fs_varing_define += 'in vec3 v_normal;\n';
+                fs_varing += 'vec3 normal = vec4(v_normal, 1.);';
             }
             else if (varing === 'view normal') {
 

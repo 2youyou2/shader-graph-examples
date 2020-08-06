@@ -165,7 +165,7 @@ CCProgram pbr-fs %{
 
     s.albedo.rgb = vec3(0., 0., 0.);
     s.normal    = v_normal;
-    s.position  = v_worldPos;
+    s.position  = worldPosition;
     s.emissive  = vec3(var_11);
     s.metallic  = 0.;
     s.roughness = clamp(1. - 0., 0.04, 1.0);
