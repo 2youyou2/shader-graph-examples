@@ -10,3 +10,12 @@ export enum TextureConcretePrecision {
     Texture2D = 100,
     TextureCube = 101
 }; 
+
+
+export enum PositionSpace {
+    Object,
+    View,
+    World,
+    Tangent,
+    AbsoluteWorld
+}

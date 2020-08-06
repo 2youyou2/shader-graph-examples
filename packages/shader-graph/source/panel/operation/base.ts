@@ -55,6 +55,7 @@ export class ShaderNode {
     deps: ShaderNode[] = []
 
     depChunks: string[] = []
+    depVarings: string[] = []
 
     isMasterNode = false;
     isPropertyNode = false;

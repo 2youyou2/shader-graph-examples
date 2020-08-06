@@ -5,12 +5,8 @@ CCEffect %{
     passes:
     - vert: pbr-vs:vert
       frag: pbr-fs:frag
-      properties: &props
+      
         
-        Color: { value: [1, 1, 1,  1] , editor: { type: color }}
-        Rim_Color: { value: [2.2706029415130615, 2.2706029415130615, 2.2706029415130615,  1] , editor: { type: color }}
-        Normal_Map: { value: white }
-        Occlusion_Map: { value: white }
 
   - name: transparent
     passes:
@@ -25,7 +21,7 @@ CCEffect %{
           blendSrc: src_alpha
           blendDst: one_minus_src_alpha
           blendDstAlpha: one_minus_src_alpha
-      properties: *props
+      
 }%
 
 
@@ -44,14 +40,11 @@ CCProgram shader_graph_common %{
 CCProgram properties %{
   uniform ShaderGraph_Properties {
     
-    vec4 Color;
-    vec4 Rim_Color;
+    vec4 empty_value;
 
   };
 
-    uniform sampler2D Normal_Map;
-  uniform sampler2D Occlusion_Map;
-
+  
 }%
 
 CCProgram pbr-vs %{
@@ -65,12 +58,9 @@ CCProgram pbr-vs %{
   #include <cc-local-batch>
   #include <properties>
 
-  #if USE_VERTEX_COLOR
-    in vec3 a_color;
-    out vec3 v_color;
-  #endif
+  in vec3 a_color;
+  out vec3 v_color;
 
-  out vec3 v_position;
   out vec3 v_normal;
   
   out vec3 v_tangent;
@@ -83,6 +73,12 @@ CCProgram pbr-vs %{
   #if USE_LIGHTMAP && !USE_BATCHING && !USE_INSTANCING
     out vec2 v_luv;
   #endif
+
+  
+  #include <shader_graph_common>
+
+  out vec3 v_worldPos;
+
 
   vec4 vert () {
     StandardVertInput In;
@@ -102,27 +98,26 @@ CCProgram pbr-vs %{
     normal   = normal;
     tangent  = tangent;
 
-    position =  matWorld * position;
+    vec4 worldPosition = matWorld * position;
+    vec4 viewPosition = cc_matView * worldPosition;
 
-    v_position = position.xyz;
+    v_worldPos = worldPosition.xyz;
+
+
     v_normal = normalize((matWorldIT * vec4(normal, 0.0)).xyz);
     
     v_tangent = normalize((matWorld * vec4(tangent.xyz, 0.0)).xyz);
     v_bitangent = cross(v_normal, v_tangent) * tangent.w; // note the cross order
 
     v_uv = a_texCoord;
-    #if HAS_SECOND_UV
-      v_uv1 = a_texCoord1;
-    #endif
+    v_uv1 = a_texCoord1;
+    v_color = a_color;
 
-    #if USE_VERTEX_COLOR
-      v_color = a_color;
-    #endif
     #if USE_LIGHTMAP && HAS_SECOND_UV && !USE_BATCHING && !USE_INSTANCING
       v_luv = cc_lightingMapUVParam.xy + a_texCoord1 * cc_lightingMapUVParam.zw;
     #endif
 
-    return cc_matProj * cc_matView * position;
+    return cc_matProj * viewPosition;
   }
 }%
 
@@ -141,8 +136,9 @@ CCProgram pbr-fs %{
   
   #include <shader_graph_common>
 
+  in vec3 v_worldPos;
 
-  in vec3 v_position;
+
   in vec2 v_uv;
   in vec2 v_uv1;
   in vec3 v_normal;
@@ -157,41 +153,23 @@ CCProgram pbr-fs %{
   #endif
 
   void surf (out StandardSurface s) {
+    vec4 worldPosition = vec4(v_worldPos, 1.);
     
 
-     // PropertyNode
-     // ShaderNode
-    var_18 = normalize(var_16); // NormalizeNode
-    vec4 var_48 = texture(Normal_Map, v_uv); // SampleTexture2DNode
-     // SampleTexture2DNode
-     // ShaderNode
-     // ShaderNode
-    vec4 var_23 = -vec4(var_47); // NegateNode
-    vec4 var_21 = dot(vec4(var_14), vec4(var_23)); // DotProductNode
-    vec4 var_13 = vec4(1., 1., 1., 1.) - vec4(var_21); // SubtractNode
-    vec4 var_28 = saturate(vec4(var_13)); // SaturateNode
-     // PropertyNode
-    vec4 var_10 = pow(vec4(var_28), vec4(8.539999961853027, 2., 2., 2.)); // PowerNode
-     // PropertyNode
-     // PropertyNode
-    vec4 var_29 = texture(Normal_Map, v_uv); // SampleTexture2DNode
-     // SampleTexture2DNode
-    vec4 var_26 = vec4(Rim_Color) * vec4(var_10); // MultiplyNode
-    vec4 var_37 = texture(Occlusion_Map, v_uv); // SampleTexture2DNode
-     // SampleTexture2DNode
+    vec3 var_11 = v_worldPos; // PositionNode
 
     s.albedo.a  = 1.;
     if (s.albedo.a <= 0.) {
       discard;
     }
 
-    s.albedo.rgb = vec3(Color.xyz);
-    s.normal    = vec3(var_29.xyz);
-    s.position  = v_position;
-    s.emissive  = vec3(var_26.xyz);
+    s.albedo.rgb = vec3(0., 0., 0.);
+    s.normal    = v_normal;
+    s.position  = v_worldPos;
+    s.emissive  = vec3(var_11);
     s.metallic  = 0.;
-    s.roughness = clamp(1. - 0.30000001192092896, 0.04, 1.0);
-    s.occlusion = clamp(var_37.x, 0., 0.96);
+    s.roughness = clamp(1. - 0., 0.04, 1.0);
+    s.occlusion = clamp(1., 0., 0.96);
   }
 
   vec4 frag () {
@@ -212,6 +190,10 @@ CCProgram pbr-fs %{
       color.rgb = lighting.a * finalColor + (1.0 - lighting.a) * color.rgb;
     #endif
 
+    #if USE_TONEMAP
     return CCFragOutput(color);
+    #else
+    return color;
+    #endif
   }
 }%

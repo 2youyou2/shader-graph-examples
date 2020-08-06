@@ -63,6 +63,7 @@ export default class MasterNode extends ShaderNode {
             });
         })
 
+
         return code.join('\n');
     }
 
@@ -183,8 +184,72 @@ export default class MasterNode extends ShaderNode {
         return code;
     }
 
+    generateVarings (code) {
+        let depVarings: string[] = []
+        let allNodes = ShaderGraph.allNodes;
+        allNodes.forEach(nodes => {
+            nodes.forEach(node => {
+                node.depVarings.forEach(varing => {
+                    if (!depVarings.includes(varing)) {
+                        depVarings.push(varing);
+                    }
+                })
+            })
+        })
+
+        let vs_varing_define = ''
+        let vs_varing = ''
+        let fs_varing_define = ''
+        let fs_varing = ''
+        depVarings.forEach(varing => {
+            if (varing === 'PositionSpace.Object') {
+                vs_varing_define += 'out vec3 v_pos;\n'
+                vs_varing += 'v_pos = position.xyz;\n';
+                fs_varing_define += 'in vec3 v_pos;\n';
+                fs_varing += 'vec4 position = vec4(v_pos, 1.);';
+            }
+            else if (varing === 'PositionSpace.View') {
+                vs_varing_define += 'out vec3 v_viewPos;\n'
+                vs_varing += 'v_viewPos = viewPosition.xyz;\n';
+                fs_varing_define += 'in vec3 v_viewPos;\n';
+                fs_varing += 'vec4 viewPosition = vec4(v_viewPos, 1.);';
+            }
+            else if (varing === 'PositionSpace.World' || varing === 'PositionSpace.AbsoluteWorld') {
+                vs_varing_define += 'out vec3 v_worldPos;\n'
+                vs_varing += 'v_worldPos = worldPosition.xyz;\n';
+                fs_varing_define += 'in vec3 v_worldPos;\n';
+                fs_varing += 'vec4 worldPosition = vec4(v_worldPos, 1.);';
+            }
+            else if (varing === 'tangent position') {
+                
+            }
+            else if (varing === 'object normal') {
+                
+            }
+            else if (varing === 'view normal') {
+
+            }
+            else if (varing === 'world normal') {
+                
+            }
+            else if (varing === 'tangent normal') {
+                
+            }
+        })
+
+        code = code.replace('{{vs_varing_define}}', vs_varing_define)
+        code = code.replace('{{vs_varing}}', vs_varing)
+        
+        code = code.replace('{{fs_varing_define}}', fs_varing_define)
+        code = code.replace('{{fs_varing}}', fs_varing)
+
+        return code;
+    }
+
     generateCode () {
         let code = fs.readFileSync(this.templatePath, 'utf-8');
+
+        code = this.generateVarings(code);
 
         const vsCode = this.generateVsCode();
         const fsCode = this.generateFsCode();

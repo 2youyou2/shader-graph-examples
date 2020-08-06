@@ -5,8 +5,9 @@ CCEffect %{
     passes:
     - vert: unlit-vs:vert
       frag: unlit-fs:frag
-      properties: &props
-        {{properties_mtl}}
+      
+        
+
   - name: transparent
     passes:
     - vert: unlit-vs:vert
@@ -20,7 +21,7 @@ CCEffect %{
           blendSrc: src_alpha
           blendDst: one_minus_src_alpha
           blendDstAlpha: one_minus_src_alpha
-      properties: *props
+      
   - name: add
     passes:
     - vert: unlit-vs:vert
@@ -34,7 +35,7 @@ CCEffect %{
           blendDst: one
           blendSrcAlpha: src_alpha
           blendDstAlpha: one
-      properties: *props
+      
   - name: alpha-blend
     passes:
     - vert: unlit-vs:vert
@@ -48,17 +49,30 @@ CCEffect %{
           blendDst: one_minus_src_alpha
           blendSrcAlpha: src_alpha
           blendDstAlpha: one_minus_src_alpha
-      properties: *props
+      
 }%
 
-{{chunks}}
+
+
+
+CCProgram shader_graph_common %{
+
+#include <common>
+#define frac(uv) fract(uv)
+#define lerp(min, max, t) mix(min, max, t)
+
+}%
+
+
 
 CCProgram properties %{
   uniform ShaderGraph_Properties {
-    {{properties}}
+    
+    vec4 empty_value;
+
   };
 
-  {{properties_sampler}}
+  
 }%
 
 CCProgram unlit-vs %{
@@ -72,8 +86,11 @@ CCProgram unlit-vs %{
   #include <cc-local-batch>
   #include <properties>
 
-  {{vs_chunks}}
-  {{vs_varing_define}}
+  
+  #include <shader_graph_common>
+
+  out vec3 v_pos;
+
 
   in vec2 a_texCoord;
   out vec2 v_uv;
@@ -85,14 +102,16 @@ CCProgram unlit-vs %{
     mat4 matWorld;
     CCGetWorldMatrix(matWorld);
 
-    {{vs}}
+    
 
-    position = {{slot_Vertex_Position = position}};
+
+    position = position;
 
     vec4 worldPosition = matWorld * position;
     vec4 viewPosition = cc_matView * worldPosition;
 
-    {{vs_varing}}
+    v_pos = position.xyz;
+
 
     v_uv = a_texCoord;
 
@@ -109,19 +128,24 @@ CCProgram unlit-fs %{
   #include <output>
   #include <properties>
   
-  {{fs_chunks}}
-  {{fs_varing_define}}
+  
+  #include <shader_graph_common>
+
+  in vec3 v_pos;
+
   
   in vec2 v_uv;
 
   vec4 frag () {
     vec4 o = vec4(1.);
 
-    {{fs_varing}}
-    {{fs}}
+    vec4 position = vec4(v_pos, 1.);
+    
 
-    o.rgb *= {{slot_Color = vec3(1.)}};
-    o.a *= {{slot_Alpha = 1.}};
+    vec3 var_6 = v_pos; // PositionNode
+
+    o.rgb *= vec3(var_6);
+    o.a *= 1.;
 
     return CCFragOutput(o);
   }

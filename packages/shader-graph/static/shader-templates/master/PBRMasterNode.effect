@@ -44,12 +44,9 @@ CCProgram pbr-vs %{
   #include <cc-local-batch>
   #include <properties>
 
-  #if USE_VERTEX_COLOR
-    in vec3 a_color;
-    out vec3 v_color;
-  #endif
+  in vec3 a_color;
+  out vec3 v_color;
 
-  out vec3 v_position;
   out vec3 v_normal;
   
   out vec3 v_tangent;
@@ -62,6 +59,9 @@ CCProgram pbr-vs %{
   #if USE_LIGHTMAP && !USE_BATCHING && !USE_INSTANCING
     out vec2 v_luv;
   #endif
+
+  {{vs_chunks}}
+  {{vs_varing_define}}
 
   vec4 vert () {
     StandardVertInput In;
@@ -80,27 +80,25 @@ CCProgram pbr-vs %{
     normal   = {{slot_Vertex_Normal = normal}};
     tangent  = {{slot_Vertex_Tangent = tangent}};
 
-    position =  matWorld * position;
+    vec4 worldPosition = matWorld * position;
+    vec4 viewPosition = cc_matView * worldPosition;
 
-    v_position = position.xyz;
+    {{vs_varing}}
+
     v_normal = normalize((matWorldIT * vec4(normal, 0.0)).xyz);
     
     v_tangent = normalize((matWorld * vec4(tangent.xyz, 0.0)).xyz);
     v_bitangent = cross(v_normal, v_tangent) * tangent.w; // note the cross order
 
     v_uv = a_texCoord;
-    #if HAS_SECOND_UV
-      v_uv1 = a_texCoord1;
-    #endif
+    v_uv1 = a_texCoord1;
+    v_color = a_color;
 
-    #if USE_VERTEX_COLOR
-      v_color = a_color;
-    #endif
     #if USE_LIGHTMAP && HAS_SECOND_UV && !USE_BATCHING && !USE_INSTANCING
       v_luv = cc_lightingMapUVParam.xy + a_texCoord1 * cc_lightingMapUVParam.zw;
     #endif
 
-    return cc_matProj * cc_matView * position;
+    return cc_matProj * viewPosition;
   }
 }%
 
@@ -117,8 +115,8 @@ CCProgram pbr-fs %{
   #include <properties>
   
   {{fs_chunks}}
+  {{fs_varing_define}}
 
-  in vec3 v_position;
   in vec2 v_uv;
   in vec2 v_uv1;
   in vec3 v_normal;
@@ -133,6 +131,7 @@ CCProgram pbr-fs %{
   #endif
 
   void surf (out StandardSurface s) {
+    {{fs_varing}}
     {{fs}}
 
     s.albedo.a  = {{slot_Alpha = 1.}};
@@ -142,7 +141,7 @@ CCProgram pbr-fs %{
 
     s.albedo.rgb = {{slot_Albedo = vec3(1.)}};
     s.normal    = {{slot_Normal = v_normal}};
-    s.position  = v_position;
+    s.position  = v_worldPos;
     s.emissive  = {{slot_Emission = vec3(0.)}};
     s.metallic  = {{slot_Metallic = 0.6}};
     s.roughness = clamp(1. - {{slot_Smoothness = 0.4}}, 0.04, 1.0);
@@ -167,6 +166,10 @@ CCProgram pbr-fs %{
       color.rgb = lighting.a * finalColor + (1.0 - lighting.a) * color.rgb;
     #endif
 
+    #if USE_TONEMAP
     return CCFragOutput(color);
+    #else
+    return color;
+    #endif
   }
 }%
