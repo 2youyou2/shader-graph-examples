@@ -1,0 +1,217 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: pbr-vs:vert
+      frag: pbr-fs:frag
+      properties: &props
+        
+        Color: { value: [1, 1, 1,  1] , editor: { type: color }}
+        Rim_Color: { value: [2.2706029415130615, 2.2706029415130615, 2.2706029415130615,  1] , editor: { type: color }}
+        Normal_Map: { value: white }
+        Occlusion_Map: { value: white }
+
+  - name: transparent
+    passes:
+    - vert: pbr-vs:vert
+      frag: pbr-fs:frag
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+}%
+
+
+
+
+CCProgram shader_graph_common %{
+
+#include <common>
+#define frac(uv) fract(uv)
+#define lerp(min, max, t) mix(min, max, t)
+
+}%
+
+
+
+CCProgram properties %{
+  uniform ShaderGraph_Properties {
+    
+    vec4 Color;
+    vec4 Rim_Color;
+
+  };
+
+    uniform sampler2D Normal_Map;
+  uniform sampler2D Occlusion_Map;
+
+}%
+
+CCProgram pbr-vs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+
+  precision highp float;
+  #include <input-standard>
+  #include <cc-global>
+  #include <cc-local-batch>
+  #include <properties>
+
+  #if USE_VERTEX_COLOR
+    in vec3 a_color;
+    out vec3 v_color;
+  #endif
+
+  out vec3 v_position;
+  out vec3 v_normal;
+  
+  out vec3 v_tangent;
+  out vec3 v_bitangent;
+
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+  in vec2 a_texCoord1;
+  out vec2 v_uv1;
+  #if USE_LIGHTMAP && !USE_BATCHING && !USE_INSTANCING
+    out vec2 v_luv;
+  #endif
+
+  vec4 vert () {
+    StandardVertInput In;
+    CCVertInput(In);
+
+    mat4 matWorld, matWorldIT;
+    CCGetWorldMatrixFull(matWorld, matWorldIT);
+
+    vec4 position = In.position;
+    vec3 normal = In.normal;
+    vec4 tangent = In.tangent;
+
+    
+
+
+    position = position;
+    normal   = normal;
+    tangent  = tangent;
+
+    position =  matWorld * position;
+
+    v_position = position.xyz;
+    v_normal = normalize((matWorldIT * vec4(normal, 0.0)).xyz);
+    
+    v_tangent = normalize((matWorld * vec4(tangent.xyz, 0.0)).xyz);
+    v_bitangent = cross(v_normal, v_tangent) * tangent.w; // note the cross order
+
+    v_uv = a_texCoord;
+    #if HAS_SECOND_UV
+      v_uv1 = a_texCoord1;
+    #endif
+
+    #if USE_VERTEX_COLOR
+      v_color = a_color;
+    #endif
+    #if USE_LIGHTMAP && HAS_SECOND_UV && !USE_BATCHING && !USE_INSTANCING
+      v_luv = cc_lightingMapUVParam.xy + a_texCoord1 * cc_lightingMapUVParam.zw;
+    #endif
+
+    return cc_matProj * cc_matView * position;
+  }
+}%
+
+CCProgram pbr-fs %{
+  #if USE_standard_derivatives
+    #extension GL_OES_standard_derivatives : enable
+  #endif
+  
+  precision highp float;
+  #include <cc-global>
+  #include <shading-standard>
+  #include <output-standard>
+  #include <gamma>
+  #include <properties>
+  
+  
+  #include <shader_graph_common>
+
+
+  in vec3 v_position;
+  in vec2 v_uv;
+  in vec2 v_uv1;
+  in vec3 v_normal;
+
+  in vec3 v_tangent;
+  in vec3 v_bitangent;
+
+  #if USE_LIGHTMAP
+    in vec2 v_luv;
+    #pragma builtin(local)
+    layout(binding = 30) uniform sampler2D cc_lightingMap;
+  #endif
+
+  void surf (out StandardSurface s) {
+    
+
+     // PropertyNode
+     // ShaderNode
+    var_18 = normalize(var_16); // NormalizeNode
+    vec4 var_48 = texture(Normal_Map, v_uv); // SampleTexture2DNode
+     // SampleTexture2DNode
+     // ShaderNode
+     // ShaderNode
+    vec4 var_23 = -vec4(var_47); // NegateNode
+    vec4 var_21 = dot(vec4(var_14), vec4(var_23)); // DotProductNode
+    vec4 var_13 = vec4(1., 1., 1., 1.) - vec4(var_21); // SubtractNode
+    vec4 var_28 = saturate(vec4(var_13)); // SaturateNode
+     // PropertyNode
+    vec4 var_10 = pow(vec4(var_28), vec4(8.539999961853027, 2., 2., 2.)); // PowerNode
+     // PropertyNode
+     // PropertyNode
+    vec4 var_29 = texture(Normal_Map, v_uv); // SampleTexture2DNode
+     // SampleTexture2DNode
+    vec4 var_26 = vec4(Rim_Color) * vec4(var_10); // MultiplyNode
+    vec4 var_37 = texture(Occlusion_Map, v_uv); // SampleTexture2DNode
+     // SampleTexture2DNode
+
+    s.albedo.a  = 1.;
+    if (s.albedo.a <= 0.) {
+      discard;
+    }
+
+    s.albedo.rgb = vec3(Color.xyz);
+    s.normal    = vec3(var_29.xyz);
+    s.position  = v_position;
+    s.emissive  = vec3(var_26.xyz);
+    s.metallic  = 0.;
+    s.roughness = clamp(1. - 0.30000001192092896, 0.04, 1.0);
+    s.occlusion = clamp(var_37.x, 0., 0.96);
+  }
+
+  vec4 frag () {
+    StandardSurface s; surf(s);
+    vec4 color = CCStandardShading(s);
+
+    #if USE_LIGHTMAP && !USE_BATCHING && !USE_INSTANCING
+      vec4 lighting = texture(cc_lightingMap, v_luv);
+
+      float fAmb = 0.5 - s.normal.y * 0.5;
+      vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;
+
+      vec3 finalColor = (ambDiff.rgb * s.albedo.rgb);
+      finalColor += lighting.rgb *  s.albedo.rgb;
+      finalColor = finalColor * s.occlusion;
+      finalColor += s.emissive;
+
+      color.rgb = lighting.a * finalColor + (1.0 - lighting.a) * color.rgb;
+    #endif
+
+    return CCFragOutput(color);
+  }
+}%
