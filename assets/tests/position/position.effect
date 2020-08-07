@@ -78,6 +78,7 @@ CCProgram pbr-vs %{
   #include <shader_graph_common>
 
   out vec3 v_worldPos;
+out vec3 v_worldNormal;
 
 
   vec4 vert () {
@@ -90,6 +91,13 @@ CCProgram pbr-vs %{
     vec4 position = In.position;
     vec3 normal = In.normal;
     vec4 tangent = In.tangent;
+    
+    vec4 worldPosition = matWorld * position;
+    vec4 viewPosition = cc_matView * worldPosition;
+
+    vec3 worldNormal = normalize((matWorldIT * vec4(normal, 0.0)).xyz);
+v_worldPos = worldPosition.xyz;
+v_worldNormal = worldNormal;
 
     
 
@@ -98,16 +106,10 @@ CCProgram pbr-vs %{
     normal   = normal;
     tangent  = tangent;
 
-    vec4 worldPosition = matWorld * position;
-    vec4 viewPosition = cc_matView * worldPosition;
-
-    v_worldPos = worldPosition.xyz;
-
-
     v_normal = normalize((matWorldIT * vec4(normal, 0.0)).xyz);
     
     v_tangent = normalize((matWorld * vec4(tangent.xyz, 0.0)).xyz);
-    v_bitangent = cross(v_normal, v_tangent) * tangent.w; // note the cross order
+    v_bitangent = cross(v_normal, v_tangent) * tangent.w;
 
     v_uv = a_texCoord;
     v_uv1 = a_texCoord1;
@@ -137,6 +139,7 @@ CCProgram pbr-fs %{
   #include <shader_graph_common>
 
   in vec3 v_worldPos;
+in vec3 v_worldNormal;
 
 
   in vec2 v_uv;
@@ -154,6 +157,8 @@ CCProgram pbr-fs %{
 
   void surf (out StandardSurface s) {
     vec4 worldPosition = vec4(v_worldPos, 1.);
+vec3 worldNormal = v_worldNormal;
+
     
 
     vec3 var_11 = v_worldPos; // PositionNode
@@ -164,8 +169,8 @@ CCProgram pbr-fs %{
     }
 
     s.albedo.rgb = vec3(0., 0., 0.);
-    s.normal    = v_normal;
-    s.position  = worldPosition;
+    s.normal    = worldNormal;
+    s.position  = worldPosition.xyz;
     s.emissive  = vec3(var_11);
     s.metallic  = 0.;
     s.roughness = clamp(1. - 0., 0.04, 1.0);

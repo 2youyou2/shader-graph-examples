@@ -31,22 +31,22 @@ class PositionNode extends base_1.ShaderNode {
         });
     }
     generateCode() {
-        let name = 'position.xyz';
+        let name = 'v_pos';
         if (this.data.m_Space === type_1.PositionSpace.Object) {
-            name = 'position.xyz';
+            name = 'v_pos';
         }
         else if (this.data.m_Space === type_1.PositionSpace.View) {
-            name = 'viewPosition.xyz';
+            name = 'v_viewPos';
         }
         else if (this.data.m_Space === type_1.PositionSpace.Tangent) {
             // name = 'v_tangentPos';
-            name = 'worldPosition.xyz';
+            name = 'v_worldPos';
         }
         else if (this.data.m_Space === type_1.PositionSpace.World) {
-            name = 'worldPosition.xyz';
+            name = 'v_worldPos';
         }
         else if (this.data.m_Space === type_1.PositionSpace.AbsoluteWorld) {
-            name = 'worldPosition.xyz';
+            name = 'v_worldPos';
         }
         return `${this.getOutputVarDefine(0)} = ${name};`;
     }

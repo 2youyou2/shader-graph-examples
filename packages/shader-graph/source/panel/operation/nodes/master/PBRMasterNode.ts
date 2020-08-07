@@ -9,7 +9,7 @@ export default class PBRMasterNode extends MasterNode {
 
     templatePath = path.join(shaderTemplatesDir, 'master/PBRMasterNode.effect');
 
-    depVarings = ['PositionSpace.World']
+    depVarings = ['PositionSpace.World', 'NormalSpace.World']
 
     constructor (data) {
         super(data)

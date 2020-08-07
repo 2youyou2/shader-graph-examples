@@ -28,19 +28,19 @@ class NormalVectorNode extends base_1.ShaderNode {
         });
     }
     generateCode() {
-        let name = 'normal';
+        let name = 'v_normal';
         if (this.data.m_Space === type_1.NormalSpace.Object) {
-            name = 'normal';
+            name = 'v_normal';
         }
         else if (this.data.m_Space === type_1.NormalSpace.View) {
-            name = 'viewNormal';
+            name = 'v_viewNormal';
         }
         else if (this.data.m_Space === type_1.NormalSpace.Tangent) {
-            // name = 'tangentNormal';
-            name = 'worldNormal';
+            // name = 'v_tangentNormal';
+            name = 'v_worldNormal';
         }
         else if (this.data.m_Space === type_1.NormalSpace.World) {
-            name = 'worldNormal';
+            name = 'v_worldNormal';
         }
         return `${this.getOutputVarDefine(0)} = ${name};`;
     }

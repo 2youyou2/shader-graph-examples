@@ -47,11 +47,6 @@ CCProgram pbr-vs %{
   in vec3 a_color;
   out vec3 v_color;
 
-  out vec3 v_normal;
-  
-  out vec3 v_tangent;
-  out vec3 v_bitangent;
-
   in vec2 a_texCoord;
   out vec2 v_uv;
   in vec2 a_texCoord1;
@@ -73,22 +68,16 @@ CCProgram pbr-vs %{
     vec4 position = In.position;
     vec3 normal = In.normal;
     vec4 tangent = In.tangent;
+    
+    vec4 worldPosition = matWorld * position;
+    vec4 viewPosition = cc_matView * worldPosition;
 
+    {{vs_varing}}
     {{vs}}
 
     position = {{slot_Vertex_Position = position}};
     normal   = {{slot_Vertex_Normal = normal}};
     tangent  = {{slot_Vertex_Tangent = tangent}};
-
-    vec4 worldPosition = matWorld * position;
-    vec4 viewPosition = cc_matView * worldPosition;
-
-    {{vs_varing}}
-
-    v_normal = normalize((matWorldIT * vec4(normal, 0.0)).xyz);
-    
-    v_tangent = normalize((matWorld * vec4(tangent.xyz, 0.0)).xyz);
-    v_bitangent = cross(v_normal, v_tangent) * tangent.w; // note the cross order
 
     v_uv = a_texCoord;
     v_uv1 = a_texCoord1;
@@ -119,10 +108,6 @@ CCProgram pbr-fs %{
 
   in vec2 v_uv;
   in vec2 v_uv1;
-  in vec3 v_normal;
-
-  in vec3 v_tangent;
-  in vec3 v_bitangent;
 
   #if USE_LIGHTMAP
     in vec2 v_luv;
@@ -140,8 +125,8 @@ CCProgram pbr-fs %{
     }
 
     s.albedo.rgb = {{slot_Albedo = vec3(1.)}};
-    s.normal    = {{slot_Normal = v_normal}};
-    s.position  = v_worldPos;
+    s.normal    = {{slot_Normal = worldNormal}};
+    s.position  = worldPosition.xyz;
     s.emissive  = {{slot_Emission = vec3(0.)}};
     s.metallic  = {{slot_Metallic = 0.6}};
     s.roughness = clamp(1. - {{slot_Smoothness = 0.4}}, 0.04, 1.0);
