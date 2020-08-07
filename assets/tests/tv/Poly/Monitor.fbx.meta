@@ -1,0 +1,123 @@
+{
+  "ver": "1.3.21",
+  "importer": "fbx",
+  "imported": true,
+  "uuid": "fafa8012-4a7e-434f-b680-761661b6230d",
+  "files": [],
+  "subMetas": {
+    "d28b5": {
+      "importer": "gltf-mesh",
+      "uuid": "fafa8012-4a7e-434f-b680-761661b6230d@d28b5",
+      "displayName": "",
+      "id": "d28b5",
+      "name": "Monitor_1.mesh",
+      "ver": "1.1.0",
+      "imported": true,
+      "files": [
+        ".json",
+        ".bin"
+      ],
+      "subMetas": {},
+      "userData": {
+        "gltfIndex": 0
+      }
+    },
+    "03ca5": {
+      "importer": "gltf-embeded-image",
+      "uuid": "fafa8012-4a7e-434f-b680-761661b6230d@03ca5",
+      "displayName": "",
+      "id": "03ca5",
+      "name": "Commodore 64 Texture.png.image",
+      "ver": "1.0.2",
+      "imported": true,
+      "files": [
+        ".png",
+        ".json"
+      ],
+      "subMetas": {},
+      "userData": {
+        "gltfIndex": 0
+      }
+    },
+    "4f17a": {
+      "importer": "texture",
+      "uuid": "fafa8012-4a7e-434f-b680-761661b6230d@4f17a",
+      "displayName": "",
+      "id": "4f17a",
+      "name": "DiffuseColor_Texture.texture",
+      "ver": "1.0.19",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {},
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "premultiplyAlpha": false,
+        "anisotropy": 1,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "fafa8012-4a7e-434f-b680-761661b6230d@03ca5"
+      }
+    },
+    "b0d88": {
+      "importer": "gltf-material",
+      "uuid": "fafa8012-4a7e-434f-b680-761661b6230d@b0d88",
+      "displayName": "",
+      "id": "b0d88",
+      "name": "Monitor.material",
+      "ver": "1.0.14",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {},
+      "userData": {
+        "gltfIndex": 0
+      }
+    },
+    "eeab7": {
+      "importer": "gltf-scene",
+      "uuid": "fafa8012-4a7e-434f-b680-761661b6230d@eeab7",
+      "displayName": "",
+      "id": "eeab7",
+      "name": "Monitor.prefab",
+      "ver": "1.0.11",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {},
+      "userData": {
+        "gltfIndex": 0
+      }
+    }
+  },
+  "userData": {
+    "imageMetas": [
+      {
+        "name": "Commodore 64 Texture.png",
+        "uri": "fafa8012-4a7e-434f-b680-761661b6230d@03ca5"
+      }
+    ],
+    "redirect": "fafa8012-4a7e-434f-b680-761661b6230d@eeab7",
+    "assetFinder": {
+      "meshes": [
+        "fafa8012-4a7e-434f-b680-761661b6230d@d28b5"
+      ],
+      "skeletons": [],
+      "textures": [
+        "fafa8012-4a7e-434f-b680-761661b6230d@4f17a"
+      ],
+      "materials": [
+        "fafa8012-4a7e-434f-b680-761661b6230d@b0d88"
+      ],
+      "scenes": [
+        "fafa8012-4a7e-434f-b680-761661b6230d@eeab7"
+      ]
+    }
+  }
+}
