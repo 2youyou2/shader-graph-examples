@@ -21,10 +21,16 @@
                     ></ui-file>
                 </div>
             </div>
-            <div class="remove">
+            <div class="button">
                 <ui-button @click="remove(d)">
                     X
                 </ui-button>
+                <ui-checkbox 
+                    :value="d.enabled" 
+                    @change="d.enabled = $event.target.value"
+                    @confirm="saveEdit"
+                >
+                </ui-checkbox>
             </div>
         </div>
         

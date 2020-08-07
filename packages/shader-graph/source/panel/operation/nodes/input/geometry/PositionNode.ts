@@ -8,25 +8,22 @@ export default class PositionNode extends ShaderNode {
     constructor (data) {
         super(data)
 
-        let varing = 'PositionSpace.Object'
-        if (this.data.m_Space === PositionSpace.Object) {
-            varing = 'PositionSpace.Object';
+        if (this.data.m_Space === PositionSpace.Object - PositionSpace.Object) {
+            this.depVarings.push(PositionSpace.Object);
         }
-        else if (this.data.m_Space === PositionSpace.View) {
-            varing = 'PositionSpace.View';
+        else if (this.data.m_Space === PositionSpace.View - PositionSpace.Object) {
+            this.depVarings.push(PositionSpace.View);
         }
-        else if (this.data.m_Space === PositionSpace.Tangent) {
-            varing = 'PositionSpace.Tangent';
+        else if (this.data.m_Space === PositionSpace.Tangent - PositionSpace.Object) {
             console.error('Not support Tangent Position');
+            this.depVarings.push(PositionSpace.Tangent);
         }
-        else if (this.data.m_Space === PositionSpace.World) {
-            varing = 'PositionSpace.World';
+        else if (this.data.m_Space === PositionSpace.World - PositionSpace.Object) {
+            this.depVarings.push(PositionSpace.World);
         }
-        else if (this.data.m_Space === PositionSpace.AbsoluteWorld) {
-            varing = 'PositionSpace.AbsoluteWorld';
+        else if (this.data.m_Space === PositionSpace.AbsoluteWorld - PositionSpace.Object) {
+            this.depVarings.push(PositionSpace.AbsoluteWorld);
         }
-
-        this.depVarings.push(varing);
     }
 
     calcConcretePrecision () {

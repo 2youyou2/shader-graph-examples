@@ -78,11 +78,11 @@ CCProgram pbr-vs %{
   
   #include <shader_graph_common>
 
+    
   out vec3 v_tangent;
-out vec3 v_bitangent;
-out vec3 v_worldNormal;
-out vec3 v_worldPos;
-
+  out vec3 v_bitangent;
+  out vec3 v_worldNormal;
+  out vec3 v_worldPos;
 
   vec4 vert () {
     StandardVertInput In;
@@ -98,12 +98,12 @@ out vec3 v_worldPos;
     vec4 worldPosition = matWorld * position;
     vec4 viewPosition = cc_matView * worldPosition;
 
+        
     vec3 worldNormal = normalize((matWorldIT * vec4(normal, 0.0)).xyz);
-v_tangent = normalize((matWorld * vec4(tangent.xyz, 0.0)).xyz);
-v_bitangent = cross(worldNormal, v_tangent) * tangent.w;
-v_worldNormal = worldNormal;
-v_worldPos = worldPosition.xyz;
-
+    v_tangent = normalize((matWorld * vec4(tangent.xyz, 0.0)).xyz);
+    v_bitangent = cross(worldNormal, v_tangent) * tangent.w;
+    v_worldNormal = worldNormal;
+    v_worldPos = worldPosition.xyz;
     
 
 
@@ -138,11 +138,11 @@ CCProgram pbr-fs %{
   
   #include <shader_graph_common>
 
+    
   in vec3 v_tangent;
-in vec3 v_bitangent;
-in vec3 v_worldNormal;
-in vec3 v_worldPos;
-
+  in vec3 v_bitangent;
+  in vec3 v_worldNormal;
+  in vec3 v_worldPos;
 
   in vec2 v_uv;
   in vec2 v_uv1;
@@ -154,9 +154,9 @@ in vec3 v_worldPos;
   #endif
 
   void surf (out StandardSurface s) {
+        
     vec3 worldNormal = v_worldNormal;
-vec4 worldPosition = vec4(v_worldPos, 1.);
-
+    vec4 worldPosition = vec4(v_worldPos, 1.);
     
 
      // PropertyNode
@@ -169,11 +169,6 @@ vec4 worldPosition = vec4(v_worldPos, 1.);
     vec4 var_23 = texture(albedo, v_uv); // SampleTexture2DNode
      // SampleTexture2DNode
     vec4 var_15 = texture(normal, v_uv); // SampleTexture2DNode
-    var_15.xyz -= vec3(0.5); // SampleTexture2DNode
-    var_15.xyz =  // SampleTexture2DNode
-      var_15.x * normalize(v_tangent) + // SampleTexture2DNode
-      var_15.y * normalize(v_bitangent) + // SampleTexture2DNode
-      var_15.z * normalize(worldNormal); // SampleTexture2DNode
      // SampleTexture2DNode
     vec4 var_4 = vec2(0.10000000149011612, 0.6499999761581421).x + (vec4(var_14) - vec2(0., 1.).x) * (vec2(0.10000000149011612, 0.6499999761581421).y - vec2(0.10000000149011612, 0.6499999761581421).x) / (vec2(0., 1.).y - vec2(0., 1.).x); // RemapNode
 
@@ -210,9 +205,9 @@ vec4 worldPosition = vec4(v_worldPos, 1.);
     #endif
 
     #if USE_TONEMAP
-    return CCFragOutput(color);
+      return CCFragOutput(color);
     #else
-    return color;
+      return color;
     #endif
   }
 }%

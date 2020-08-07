@@ -164,9 +164,9 @@ CCProgram pbr-vs %{
   #include <shader_graph_common>
   #include <shader_graph_noise>
 
+    
   out vec3 v_worldPos;
-out vec3 v_worldNormal;
-
+  out vec3 v_worldNormal;
 
   vec4 vert () {
     StandardVertInput In;
@@ -182,10 +182,10 @@ out vec3 v_worldNormal;
     vec4 worldPosition = matWorld * position;
     vec4 viewPosition = cc_matView * worldPosition;
 
+        
     vec3 worldNormal = normalize((matWorldIT * vec4(normal, 0.0)).xyz);
-v_worldPos = worldPosition.xyz;
-v_worldNormal = worldNormal;
-
+    v_worldPos = worldPosition.xyz;
+    v_worldNormal = worldNormal;
     
 
 
@@ -221,9 +221,9 @@ CCProgram pbr-fs %{
   #include <shader_graph_common>
   #include <shader_graph_noise>
 
+    
   in vec3 v_worldPos;
-in vec3 v_worldNormal;
-
+  in vec3 v_worldNormal;
 
   in vec2 v_uv;
   in vec2 v_uv1;
@@ -235,9 +235,9 @@ in vec3 v_worldNormal;
   #endif
 
   void surf (out StandardSurface s) {
+        
     vec4 worldPosition = vec4(v_worldPos, 1.);
-vec3 worldNormal = v_worldNormal;
-
+    vec3 worldNormal = v_worldNormal;
     
 
     vec2 var_9 = v_uv; // UVNode
@@ -326,9 +326,9 @@ vec3 worldNormal = v_worldNormal;
     #endif
 
     #if USE_TONEMAP
-    return CCFragOutput(color);
+      return CCFragOutput(color);
     #else
-    return color;
+      return color;
     #endif
   }
 }%

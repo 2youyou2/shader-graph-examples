@@ -89,7 +89,7 @@ CCProgram unlit-vs %{
   
   #include <shader_graph_common>
 
-  
+    
 
   in vec2 a_texCoord;
   out vec2 v_uv;
@@ -109,7 +109,7 @@ CCProgram unlit-vs %{
     vec4 worldPosition = matWorld * position;
     vec4 viewPosition = cc_matView * worldPosition;
 
-    
+        
 
     v_uv = a_texCoord;
 
@@ -129,14 +129,14 @@ CCProgram unlit-fs %{
   
   #include <shader_graph_common>
 
-  
+    
   
   in vec2 v_uv;
 
   vec4 frag () {
     vec4 o = vec4(1.);
 
-    
+        
     
 
     vec2 var_6 = vec2(5., 5.); // SubGraphNode

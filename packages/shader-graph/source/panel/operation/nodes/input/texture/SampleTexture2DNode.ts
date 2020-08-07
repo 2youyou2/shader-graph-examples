@@ -1,11 +1,12 @@
 import InputNode from "../InputNode";
+import { NormalMapSpace, NormalSpace } from "../../../type";
 
 enum TextureType {
     Default,
     Normal
 }
 
-enum NormalSpace {
+enum TextureNormalSpace {
     Tangent,
     Object
 }
@@ -14,8 +15,8 @@ export default class SampleTexture2DNode extends InputNode {
     constructor (data) {
         super(data);
 
-        if (this.data.m_TextureType === TextureType.Normal && this.data.m_NormalMapSpace === NormalSpace.Tangent) {
-            this.depVarings.push('NormalMap', 'NormalSpace.World')
+        if (this.data.m_TextureType === TextureType.Normal && this.data.m_NormalMapSpace === TextureNormalSpace.Tangent) {
+            this.depVarings.push(NormalMapSpace, NormalSpace.World)
         }
     }
 

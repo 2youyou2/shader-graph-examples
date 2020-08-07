@@ -2,7 +2,7 @@ import { ShaderNode, ShaderSlot, ShaderPropery } from "../../base";
 import fs from 'fs';
 import path from 'path';
 import ShaderGraph from "../../shadergraph";
-import { ConcretePrecisionType, TextureConcretePrecision } from "../../type";
+import { ConcretePrecisionType, TextureConcretePrecision, NormalSpace, NormalMapSpace, ViewDirectionSpace, PositionSpace } from "../../type";
 import { shaderTemplatesDir } from "../../utils";
 
 function findConnectNodes (slot: ShaderSlot, nodes: ShaderNode[]) {
@@ -126,6 +126,10 @@ export default class MasterNode extends ShaderNode {
                 precision = 'sampler2D'
                 mtlValue = 'white'
             }
+            else if (concretePrecision === TextureConcretePrecision.TextureCube) {
+                precision = 'samplerCube'
+                mtlValue = 'white'
+            }
 
             let editorStr = isColor ? `, editor: { type: color }` : ''
 
@@ -185,7 +189,7 @@ export default class MasterNode extends ShaderNode {
     }
 
     generateVarings (code) {
-        let depVarings: string[] = []
+        let depVarings: number[] = []
         let allNodes = ShaderGraph.allNodes;
         allNodes.forEach(nodes => {
             nodes.forEach(node => {
@@ -197,79 +201,110 @@ export default class MasterNode extends ShaderNode {
             })
         })
 
-        let vs_varing_define = ''
-        let vs_varing = ''
-        let fs_varing_define = ''
-        let fs_varing = ''
+        let vs_varing_define: string[] = ['']
+        let vs_varing: string[] = ['']
+        let fs_varing_define: string[] = ['']
+        let fs_varing: string[] = ['']
 
 
-        if (depVarings.includes('NormalSpace.World') || depVarings.includes('NormalSpace.View') || depVarings.includes('NormalSpace.Tangent') || depVarings.includes('NormalMap')) {
-            vs_varing += 'vec3 worldNormal = normalize((matWorldIT * vec4(normal, 0.0)).xyz);\n';
+        if (depVarings.includes(NormalSpace.World) || depVarings.includes(NormalSpace.View) || depVarings.includes(NormalSpace.Tangent) || depVarings.includes(NormalMapSpace)) {
+            vs_varing.push('vec3 worldNormal = normalize((matWorldIT * vec4(normal, 0.0)).xyz);');
         }
-        if (depVarings.includes('NormalSpace.View')) {
-            vs_varing += 'vec3 viewNormal = normalize((cc_matView * vec4(worldNormal, 0.0)).xyz);\n';
+        if (depVarings.includes(NormalSpace.View)) {
+            vs_varing.push('vec3 viewNormal = normalize((cc_matView * vec4(worldNormal, 0.0)).xyz);')
         }
-        if (depVarings.includes('NormalSpace.Tangent') || depVarings.includes('NormalMap')) {
-            vs_varing += 'v_tangent = normalize((matWorld * vec4(tangent.xyz, 0.0)).xyz);\n'
-            vs_varing += 'v_bitangent = cross(worldNormal, v_tangent) * tangent.w;\n'
+        if (depVarings.includes(NormalSpace.Tangent) || depVarings.includes(NormalMapSpace)) {
+            vs_varing.push('v_tangent = normalize((matWorld * vec4(tangent.xyz, 0.0)).xyz);')
+            vs_varing.push('v_bitangent = cross(worldNormal, v_tangent) * tangent.w;')
 
-            vs_varing_define += 'out vec3 v_tangent;\n'
-            vs_varing_define += 'out vec3 v_bitangent;\n'
+            vs_varing_define.push('out vec3 v_tangent;')
+            vs_varing_define.push('out vec3 v_bitangent;')
 
-            fs_varing_define += 'in vec3 v_tangent;\n'
-            fs_varing_define += 'in vec3 v_bitangent;\n'
+            fs_varing_define.push('in vec3 v_tangent;')
+            fs_varing_define.push('in vec3 v_bitangent;')
+        }
+
+        if (depVarings.includes(ViewDirectionSpace.World) || depVarings.includes(ViewDirectionSpace.View) || depVarings.includes(ViewDirectionSpace.Object)) {
+            vs_varing.push('vec3 worldView = cc_cameraPos.xyz - worldPosition.xyz;')
+        }
+        if (depVarings.includes(ViewDirectionSpace.View)) {
+            vs_varing.push('vec3 viewView = (cc_matView * vec4(worldView, 0.0))).xyz;')
+        }
+        if (depVarings.includes(ViewDirectionSpace.Object)) {
+            vs_varing.push('vec3 view = (matWorldIT * vec4(worldView, 0.0)).xyz;')
         }
 
         depVarings.forEach(varing => {
-            if (varing === 'PositionSpace.Object') {
-                vs_varing_define += 'out vec3 v_pos;\n'
-                vs_varing += 'v_pos = position.xyz;\n';
-                fs_varing_define += 'in vec3 v_pos;\n';
-                fs_varing += 'vec4 position = vec4(v_pos, 1.);\n';
+            if (varing === PositionSpace.Object) {
+                vs_varing_define.push('out vec3 v_pos;')
+                vs_varing.push('v_pos = position.xyz;');
+                fs_varing_define.push('in vec3 v_pos;');
+                fs_varing.push('vec4 position = vec4(v_pos, 1.);');
             }
-            else if (varing === 'PositionSpace.View') {
-                vs_varing_define += 'out vec3 v_viewPos;\n'
-                vs_varing += 'v_viewPos = viewPosition.xyz;\n';
-                fs_varing_define += 'in vec3 v_viewPos;\n';
-                fs_varing += 'vec4 viewPosition = vec4(v_viewPos, 1.);\n';
+            else if (varing === PositionSpace.View) {
+                vs_varing_define.push('out vec3 v_viewPos;')
+                vs_varing.push('v_viewPos = viewPosition.xyz;');
+                fs_varing_define.push('in vec3 v_viewPos;');
+                fs_varing.push('vec4 viewPosition = vec4(v_viewPos, 1.);');
             }
-            else if (varing === 'PositionSpace.World' || varing === 'PositionSpace.AbsoluteWorld') {
-                vs_varing_define += 'out vec3 v_worldPos;\n'
-                vs_varing += 'v_worldPos = worldPosition.xyz;\n';
-                fs_varing_define += 'in vec3 v_worldPos;\n';
-                fs_varing += 'vec4 worldPosition = vec4(v_worldPos, 1.);\n';
+            else if (varing === PositionSpace.World || varing === PositionSpace.AbsoluteWorld) {
+                vs_varing_define.push('out vec3 v_worldPos;')
+                vs_varing.push('v_worldPos = worldPosition.xyz;');
+                fs_varing_define.push('in vec3 v_worldPos;');
+                fs_varing.push('vec4 worldPosition = vec4(v_worldPos, 1.);');
             }
-            else if (varing === 'PositionSpace.Tangent') {
+            else if (varing === PositionSpace.Tangent) {
                 
             }
-            else if (varing === 'NormalSpace.Object') {
-                vs_varing_define += 'out vec3 v_normal;\n'
-                vs_varing += 'v_normal = normal;\n';
-                fs_varing_define += 'in vec3 v_normal;\n';
-                fs_varing += 'vec3 normal = v_normal;\n';
+            else if (varing === NormalSpace.Object) {
+                vs_varing_define.push('out vec3 v_normal;')
+                vs_varing.push('v_normal = normal;');
+                fs_varing_define.push('in vec3 v_normal;');
+                fs_varing.push('vec3 normal = v_normal;');
             }
-            else if (varing === 'NormalSpace.View') {
-                vs_varing_define += 'out vec3 v_viewNormal;\n'
-                vs_varing += 'v_viewNormal = viewNormal;\n';
-                fs_varing_define += 'in vec3 v_viewNormal;\n';
-                fs_varing += 'vec3 viewNormal = v_viewNormal;\n';
+            else if (varing === NormalSpace.View) {
+                vs_varing_define.push('out vec3 v_viewNormal;')
+                vs_varing.push('v_viewNormal = viewNormal;');
+                fs_varing_define.push('in vec3 v_viewNormal;');
+                fs_varing.push('vec3 viewNormal = v_viewNormal;');
             }
-            else if (varing === 'NormalSpace.World') {
-                vs_varing_define += 'out vec3 v_worldNormal;\n'
-                vs_varing += 'v_worldNormal = worldNormal;\n';
-                fs_varing_define += 'in vec3 v_worldNormal;\n';
-                fs_varing += 'vec3 worldNormal = v_worldNormal;\n';
+            else if (varing === NormalSpace.World) {
+                vs_varing_define.push('out vec3 v_worldNormal;')
+                vs_varing.push('v_worldNormal = worldNormal;');
+                fs_varing_define.push('in vec3 v_worldNormal;');
+                fs_varing.push('vec3 worldNormal = v_worldNormal;');
             }
-            else if (varing === 'NormalSpace.Tangent') {
+            else if (varing === NormalSpace.Tangent) {
+                
+            }
+            else if (varing === ViewDirectionSpace.Object) {
+                vs_varing_define.push('out vec3 v_view;')
+                vs_varing.push('v_view = view;');
+                fs_varing_define.push('in vec3 v_view;');
+                fs_varing.push('vec3 view = v_view;');
+            }
+            else if (varing === ViewDirectionSpace.View) {
+                vs_varing_define.push('out vec3 v_viewView;')
+                vs_varing.push('v_viewView = viewView;');
+                fs_varing_define.push('in vec3 v_viewView;');
+                fs_varing.push('vec3 viewView = v_viewView;');
+            }
+            else if (varing === ViewDirectionSpace.World) {
+                vs_varing_define.push('out vec3 v_worldView;')
+                vs_varing.push('v_worldView = worldView;');
+                fs_varing_define.push('in vec3 v_worldView;');
+                fs_varing.push('vec3 worldView = v_worldView;');
+            }
+            else if (varing === ViewDirectionSpace.Tangent) {
                 
             }
         })
 
-        code = code.replace('{{vs_varing_define}}', vs_varing_define)
-        code = code.replace('{{vs_varing}}', vs_varing)
+        code = code.replace('{{vs_varing_define}}', vs_varing_define.map(d => '  ' + d).join('\n'))
+        code = code.replace('{{vs_varing}}', vs_varing.map(d => '    ' + d).join('\n'))
         
-        code = code.replace('{{fs_varing_define}}', fs_varing_define)
-        code = code.replace('{{fs_varing}}', fs_varing)
+        code = code.replace('{{fs_varing_define}}', fs_varing_define.map(d => '  ' + d).join('\n'))
+        code = code.replace('{{fs_varing}}', fs_varing.map(d => '    ' + d).join('\n'))
 
         return code;
     }

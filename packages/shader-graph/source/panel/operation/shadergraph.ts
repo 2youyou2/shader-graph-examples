@@ -120,6 +120,12 @@ export default class ShaderGraph {
 
         (masterNode as MasterNode).properties = properties;
 
+        this.allNodes.forEach(nodes => {
+            nodes.forEach(node => {
+                node.beforeGenreateCode()
+            });
+        })
+
         let code = masterNode.generateCode();
         return code;
     }

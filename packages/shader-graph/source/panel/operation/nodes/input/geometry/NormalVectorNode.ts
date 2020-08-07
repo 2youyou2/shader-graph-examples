@@ -8,22 +8,19 @@ export default class NormalVectorNode extends ShaderNode {
     constructor (data) {
         super(data)
 
-        let varing = 'NormalSpace.Object'
-        if (this.data.m_Space === NormalSpace.Object) {
-            varing = 'NormalSpace.Object';
+        if (this.data.m_Space === NormalSpace.Object - NormalSpace.Object) {
+            this.depVarings.push(NormalSpace.Object);
         }
-        else if (this.data.m_Space === NormalSpace.View) {
-            varing = 'NormalSpace.View';
+        else if (this.data.m_Space === NormalSpace.View - NormalSpace.Object) {
+            this.depVarings.push(NormalSpace.View);
         }
-        else if (this.data.m_Space === NormalSpace.Tangent) {
-            varing = 'NormalSpace.Tangent';
+        else if (this.data.m_Space === NormalSpace.Tangent - NormalSpace.Object) {
+            this.depVarings.push(NormalSpace.Tangent);
             console.error('Not support Tangent Normal');
         }
-        else if (this.data.m_Space === NormalSpace.World) {
-            varing = 'NormalSpace.World';
+        else if (this.data.m_Space === NormalSpace.World - NormalSpace.Object) {
+            this.depVarings.push(NormalSpace.World);
         }
-
-        this.depVarings.push(varing);
     }
 
     calcConcretePrecision () {
@@ -33,19 +30,19 @@ export default class NormalVectorNode extends ShaderNode {
     }
 
     generateCode () {
-        let name = 'v_normal';
+        let name = 'normal';
         if (this.data.m_Space === NormalSpace.Object) {
-            name = 'v_normal';
+            name = 'normal';
         }
         else if (this.data.m_Space === NormalSpace.View) {
-            name = 'v_viewNormal';
+            name = 'viewNormal';
         }
         else if (this.data.m_Space === NormalSpace.Tangent) {
-            // name = 'v_tangentNormal';
-            name = 'v_worldNormal';
+            // name = 'tangentNormal';
+            name = 'worldNormal';
         }
         else if (this.data.m_Space === NormalSpace.World) {
-            name = 'v_worldNormal';
+            name = 'worldNormal';
         }
         return `${this.getOutputVarDefine(0)} = ${name};`;
     }

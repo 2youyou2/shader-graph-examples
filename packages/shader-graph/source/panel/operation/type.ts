@@ -13,7 +13,7 @@ export enum TextureConcretePrecision {
 
 
 export enum PositionSpace {
-    Object,
+    Object = 0,
     View,
     World,
     Tangent,
@@ -21,8 +21,17 @@ export enum PositionSpace {
 }
 
 export enum NormalSpace {
-    Object,
+    Object = 100,
     View,
     World,
     Tangent,
 }
+
+export enum ViewDirectionSpace {
+    Object = 200,
+    View,
+    World,
+    Tangent,
+}
+
+export const NormalMapSpace = 300;

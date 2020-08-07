@@ -71,6 +71,9 @@ export function getValueConcretePrecision (value) {
         else if (value.m_SerializedTexture !== undefined) {
             valueConretePresition = TextureConcretePrecision.Texture2D;
         }
+        else if (value.m_SerializedCubemap !== undefined) {
+            valueConretePresition = TextureConcretePrecision.TextureCube;
+        }
     }
     return valueConretePresition;
 }
@@ -91,6 +94,9 @@ export function getPrecisionName (precision: number) {
     }
     else if (precision === TextureConcretePrecision.Texture2D) {
         name = 'sampler2D';
+    }
+    else if (precision === TextureConcretePrecision.TextureCube) {
+        name = 'samplerCube';
     }
     return name;
 }

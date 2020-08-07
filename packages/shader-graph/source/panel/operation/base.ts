@@ -22,22 +22,7 @@ export class ShaderPropery {
     }
 
     get concretePrecision () {
-        let concretePrecision = 1;
-
-        let value = this.defaultValue;
-        if (typeof value === 'object') {
-            if (value.w !== undefined || value.r !== undefined) {
-                concretePrecision = 4;
-            }
-            else if (value.z !== undefined || value.g !== undefined) {
-                concretePrecision = 3;
-            }
-            else if (value.y !== undefined || value.b !== undefined) {
-                concretePrecision = 2;
-            }
-        }
-
-        return concretePrecision;
+        return getValueConcretePrecision(this.defaultValue);
     }
 }
 
@@ -55,7 +40,7 @@ export class ShaderNode {
     deps: ShaderNode[] = []
 
     depChunks: string[] = []
-    depVarings: string[] = []
+    depVarings: number[] = []
 
     isMasterNode = false;
     isPropertyNode = false;
@@ -73,6 +58,9 @@ export class ShaderNode {
             this.slotsMap.set(slot.id, slot);
             return slot;
         });
+    }
+    
+    beforeGenreateCode () {
     }
 
     addDependency (dep) {

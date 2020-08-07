@@ -152,9 +152,9 @@ CCProgram pbr-fs %{
     #endif
 
     #if USE_TONEMAP
-    return CCFragOutput(color);
+      return CCFragOutput(color);
     #else
-    return color;
+      return color;
     #endif
   }
 }%

@@ -34,9 +34,10 @@
   padding: 10px;
   margin-top: 20px;
 }
-.shadergraph .remove {
+.shadergraph .button {
   display: flex;
   justify-content: center;
   align-items: center;
   justify-items: center;
+  flex-direction: column;
 }

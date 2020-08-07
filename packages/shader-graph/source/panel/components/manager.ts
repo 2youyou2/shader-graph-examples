@@ -31,6 +31,8 @@ export const methods = {
 
     onGenerate () {
         data.directories.forEach(data => {
+            if (!data.enabled) return;
+            
             let destDir = data.dst;
 
             let graphDir = data.src;
@@ -65,7 +67,8 @@ export const methods = {
     onAdd () {
         data.directories.push({
             src: '',
-            dst: path.join(projectPath, 'assets')
+            dst: path.join(projectPath, 'assets'),
+            enabled: true,
         })
 
         this.saveEdit();
