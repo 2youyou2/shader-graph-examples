@@ -159,9 +159,9 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 0,
+      "x": 13.429,
       "y": 0,
-      "z": 0
+      "z": 15.994
     },
     "_lrot": {
       "__type__": "cc.Quat",

@@ -11,6 +11,14 @@ enum NormalSpace {
 }
 
 export default class SampleTexture2DNode extends InputNode {
+    constructor (data) {
+        super(data);
+
+        if (this.data.m_TextureType === TextureType.Normal && this.data.m_NormalMapSpace === NormalSpace.Tangent) {
+            this.depVarings.push('NormalMap', 'NormalSpace.World')
+        }
+    }
+
     generateCode () {
         let texture = this.getSlotWithSlotName('Texture');
         let rgba = this.getSlotWithSlotName('RGBA');
@@ -37,7 +45,7 @@ export default class SampleTexture2DNode extends InputNode {
             code += `${rgbaVarName}.xyz = \n`;
             code += `  ${rgbaVarName}.x * normalize(v_tangent) +\n`;
             code += `  ${rgbaVarName}.y * normalize(v_bitangent) +\n`;
-            code += `  ${rgbaVarName}.z * normalize(v_normal);\n`;
+            code += `  ${rgbaVarName}.z * normalize(worldNormal);\n`;
         }
 
         let r = this.getSlotWithSlotName('R');

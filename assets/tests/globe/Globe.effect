@@ -149,16 +149,8 @@ CCProgram pbr-vs %{
   #include <cc-local-batch>
   #include <properties>
 
-  #if USE_VERTEX_COLOR
-    in vec3 a_color;
-    out vec3 v_color;
-  #endif
-
-  out vec3 v_position;
-  out vec3 v_normal;
-  
-  out vec3 v_tangent;
-  out vec3 v_bitangent;
+  in vec3 a_color;
+  out vec3 v_color;
 
   in vec2 a_texCoord;
   out vec2 v_uv;
@@ -167,6 +159,14 @@ CCProgram pbr-vs %{
   #if USE_LIGHTMAP && !USE_BATCHING && !USE_INSTANCING
     out vec2 v_luv;
   #endif
+
+  
+  #include <shader_graph_common>
+  #include <shader_graph_noise>
+
+  out vec3 v_worldPos;
+out vec3 v_worldNormal;
+
 
   vec4 vert () {
     StandardVertInput In;
@@ -178,6 +178,13 @@ CCProgram pbr-vs %{
     vec4 position = In.position;
     vec3 normal = In.normal;
     vec4 tangent = In.tangent;
+    
+    vec4 worldPosition = matWorld * position;
+    vec4 viewPosition = cc_matView * worldPosition;
+
+    vec3 worldNormal = normalize((matWorldIT * vec4(normal, 0.0)).xyz);
+v_worldPos = worldPosition.xyz;
+v_worldNormal = worldNormal;
 
     
 
@@ -186,27 +193,15 @@ CCProgram pbr-vs %{
     normal   = normal;
     tangent  = tangent;
 
-    position =  matWorld * position;
-
-    v_position = position.xyz;
-    v_normal = normalize((matWorldIT * vec4(normal, 0.0)).xyz);
-    
-    v_tangent = normalize((matWorld * vec4(tangent.xyz, 0.0)).xyz);
-    v_bitangent = cross(v_normal, v_tangent) * tangent.w; // note the cross order
-
     v_uv = a_texCoord;
-    #if HAS_SECOND_UV
-      v_uv1 = a_texCoord1;
-    #endif
+    v_uv1 = a_texCoord1;
+    v_color = a_color;
 
-    #if USE_VERTEX_COLOR
-      v_color = a_color;
-    #endif
     #if USE_LIGHTMAP && HAS_SECOND_UV && !USE_BATCHING && !USE_INSTANCING
       v_luv = cc_lightingMapUVParam.xy + a_texCoord1 * cc_lightingMapUVParam.zw;
     #endif
 
-    return cc_matProj * cc_matView * position;
+    return cc_matProj * viewPosition;
   }
 }%
 
@@ -226,14 +221,12 @@ CCProgram pbr-fs %{
   #include <shader_graph_common>
   #include <shader_graph_noise>
 
+  in vec3 v_worldPos;
+in vec3 v_worldNormal;
 
-  in vec3 v_position;
+
   in vec2 v_uv;
   in vec2 v_uv1;
-  in vec3 v_normal;
-
-  in vec3 v_tangent;
-  in vec3 v_bitangent;
 
   #if USE_LIGHTMAP
     in vec2 v_luv;
@@ -242,6 +235,9 @@ CCProgram pbr-fs %{
   #endif
 
   void surf (out StandardSurface s) {
+    vec4 worldPosition = vec4(v_worldPos, 1.);
+vec3 worldNormal = v_worldNormal;
+
     
 
     vec2 var_9 = v_uv; // UVNode
@@ -303,8 +299,8 @@ CCProgram pbr-fs %{
     }
 
     s.albedo.rgb = vec3(0., 0., 0.);
-    s.normal    = v_normal;
-    s.position  = v_position;
+    s.normal    = worldNormal;
+    s.position  = worldPosition.xyz;
     s.emissive  = vec3(var_72.xyz);
     s.metallic  = 0.;
     s.roughness = clamp(1. - 0., 0.04, 1.0);
@@ -329,6 +325,10 @@ CCProgram pbr-fs %{
       color.rgb = lighting.a * finalColor + (1.0 - lighting.a) * color.rgb;
     #endif
 
+    #if USE_TONEMAP
     return CCFragOutput(color);
+    #else
+    return color;
+    #endif
   }
 }%

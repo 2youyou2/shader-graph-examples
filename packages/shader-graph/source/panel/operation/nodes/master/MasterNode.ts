@@ -210,8 +210,8 @@ export default class MasterNode extends ShaderNode {
             vs_varing += 'vec3 viewNormal = normalize((cc_matView * vec4(worldNormal, 0.0)).xyz);\n';
         }
         if (depVarings.includes('NormalSpace.Tangent') || depVarings.includes('NormalMap')) {
-            vs_varing += 'v_tangent = normalize((matWorld * vec4(tangent.xyz, 0.0)).xyz);'
-            vs_varing += 'v_bitangent = cross(worldNormal, v_tangent) * tangent.w;'
+            vs_varing += 'v_tangent = normalize((matWorld * vec4(tangent.xyz, 0.0)).xyz);\n'
+            vs_varing += 'v_bitangent = cross(worldNormal, v_tangent) * tangent.w;\n'
 
             vs_varing_define += 'out vec3 v_tangent;\n'
             vs_varing_define += 'out vec3 v_bitangent;\n'

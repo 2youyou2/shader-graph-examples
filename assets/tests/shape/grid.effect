@@ -60,8 +60,9 @@ CCEffect %{
 
 CCProgram shader_graph_common %{
 
-#define saturate(Value) clamp(Value, 0., 1.)
+#include <common>
 #define frac(uv) fract(uv)
+#define lerp(min, max, t) mix(min, max, t)
 
 }%
 
@@ -135,6 +136,7 @@ CCProgram unlit-vs %{
   #include <shader_graph_common>
   #include <shader_graph_shape>
 
+  
 
   in vec2 a_texCoord;
   out vec2 v_uv;
@@ -151,9 +153,14 @@ CCProgram unlit-vs %{
 
     position = position;
 
+    vec4 worldPosition = matWorld * position;
+    vec4 viewPosition = cc_matView * worldPosition;
+
+    
+
     v_uv = a_texCoord;
 
-    return cc_matProj * (cc_matView * matWorld) * position;
+    return cc_matProj * viewPosition;
   }
 }%
 
@@ -170,20 +177,22 @@ CCProgram unlit-fs %{
   #include <shader_graph_common>
   #include <shader_graph_shape>
 
-
+  
+  
   in vec2 v_uv;
 
   vec4 frag () {
     vec4 o = vec4(1.);
 
     
+    
 
-    vec2 var_26 = tilling; // PropertyNode
-    vec2 var_1 = offset; // PropertyNode
-    vec2 var_17 = v_uv * vec2(var_26) + vec2(var_1); // TilingAndOffsetNode
+     // PropertyNode
+     // PropertyNode
+    vec2 var_17 = v_uv * vec2(tilling) + vec2(offset); // TilingAndOffsetNode
     vec2 var_12 = fract(vec2(var_17)); // FractionNode
-    float var_0 = size; // PropertyNode
-    float var_10 = rect(vec2(var_12), var_0, var_0); // RectangleNode
+     // PropertyNode
+    float var_10 = rect(vec2(var_12), size, size); // RectangleNode
 
     o.rgb *= vec3(var_10);
     o.a *= 1.;
