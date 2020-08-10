@@ -7,8 +7,8 @@ CCEffect %{
       frag: pbr-fs:frag
       properties: &props
         
-        Color: { value: [1, 1, 1,  0] , editor: { type: color }}
         Map: { value: white }
+        Color: { value: [1, 1, 1,  0] , editor: { type: color }}
         Line_Count: { value: 30 }
         Line_Width: { value: 1 }
         Line_Repeat: { value: 2 }
@@ -268,25 +268,25 @@ CCProgram pbr-fs %{
     float var_28 = abs(var_22); // AbsoluteNode
     float var_17 = var_62 * Line_Repeat; // MultiplyNode
     float var_109 = var_131 + var_142; // AddNode
-    float var_36 = 0.5 - var_33; // SubtractNode
+    vec4 var_36 = vec4(0.5, 1., 1., 1.) - vec4(var_33); // SubtractNode
     float var_31 = max(var_26, var_28); // MaximumNode
      // PropertyNode
      // PropertyNode
     float var_54 = var_17 - var_109; // SubtractNode
-    float var_38 = abs(var_36); // AbsoluteNode
+    vec4 var_38 = abs(vec4(var_36)); // AbsoluteNode
     float var_137 = var_31 * Line_Width; // MultiplyNode
-    float var_97 = mix(0.9900000095367432, 0., Trail_Length); // LerpNode
+    vec4 var_97 = mix(vec4(0.9900000095367432, 0., 0., 0.), vec4(0., 1., 1., 1.), vec4(Trail_Length)); // LerpNode
     float var_51 = fract(var_54); // FractionNode
-    float var_106 = mix(0.9900000095367432, 0.8999999761581421, Trail_Length); // LerpNode
-    float var_41 = var_38 / var_137; // DivideNode
-    float var_88 = smoothstep(var_97, 1., var_51); // SmoothstepNode
-    float var_92 = smoothstep(var_106, 1., var_51); // SmoothstepNode
-    float var_44 = 1. - var_41; // SubtractNode
-    float var_123 = mix(var_88, var_92, 0.5); // LerpNode
-    float var_99 = saturate(var_44); // SaturateNode
+    vec4 var_106 = mix(vec4(0.9900000095367432, 0., 0., 0.), vec4(0.8999999761581421, 1., 1., 1.), vec4(Trail_Length)); // LerpNode
+    vec4 var_41 = vec4(var_38) / vec4(var_137); // DivideNode
+    float var_88 = smoothstep(var_97.x, 1., var_51); // SmoothstepNode
+    float var_92 = smoothstep(var_106.x, 1., var_51); // SmoothstepNode
+    vec4 var_44 = vec4(1., 1., 1., 1.) - vec4(var_41); // SubtractNode
+    vec4 var_123 = mix(vec4(var_88), vec4(var_92), vec4(0.5, 0., 0., 0.)); // LerpNode
+    vec4 var_99 = saturate(vec4(var_44)); // SaturateNode
      // PropertyNode
      // PropertyNode
-    float var_57 = var_123 * var_99; // MultiplyNode
+    vec4 var_57 = vec4(var_123) * vec4(var_99); // MultiplyNode
     vec4 var_73 = texture(Map, v_uv); // SampleTexture2DNode
     float var_74 = var_73.r; // SampleTexture2DNode
      // SampleTexture2DNode

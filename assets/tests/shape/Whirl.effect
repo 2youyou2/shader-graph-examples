@@ -184,17 +184,17 @@ CCProgram unlit-fs %{
     float var_42 = vec4(var_40, 0., 0.).r; // SplitNode
     float var_43 = vec4(var_40, 0., 0.).g; // SplitNode
      // SplitNode
-    float var_49 = var_10 / 6.2831854820251465; // DivideNode
-    float var_17 = var_49 * var_42; // MultiplyNode
-    float var_25 = var_43 - var_17; // SubtractNode
-    float var_20 = var_25 * var_8; // MultiplyNode
-    float var_22 = floor(var_20 + 0.5); // RoundNode
-    float var_28 = var_20 - var_22; // SubtractNode
-    float var_31 = abs(var_28); // AbsoluteNode
-    float var_53 = var_31 * var_9; // MultiplyNode
-    float var_57 = smoothstep(0.44999998807907104, 0.550000011920929, var_53); // SmoothstepNode
+    vec4 var_49 = vec4(var_10) / vec4(6.2831854820251465, 2., 2., 2.); // DivideNode
+    vec4 var_17 = vec4(var_49) * vec4(var_42); // MultiplyNode
+    vec4 var_25 = vec4(var_43) - vec4(var_17); // SubtractNode
+    vec4 var_20 = vec4(var_25) * vec4(var_8); // MultiplyNode
+    vec4 var_22 = floor(vec4(var_20) + 0.5); // RoundNode
+    vec4 var_28 = vec4(var_20) - vec4(var_22); // SubtractNode
+    vec4 var_31 = abs(vec4(var_28)); // AbsoluteNode
+    vec4 var_53 = vec4(var_31) * vec4(var_9); // MultiplyNode
+    vec4 var_57 = smoothstep(vec4(0.44999998807907104, 0., 0., 0.), vec4(0.550000011920929, 1., 1., 1.), vec4(var_53)); // SmoothstepNode
 
-    o.rgb *= vec3(var_57);
+    o.rgb *= vec3(var_57.xyz);
     o.a *= 1.;
 
     return CCFragOutput(o);

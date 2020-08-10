@@ -1,0 +1,41 @@
+{
+  "ver": "1.0.18",
+  "importer": "image",
+  "imported": true,
+  "uuid": "b64c4477-596b-4798-bfc3-c7e2de98d096",
+  "files": [
+    ".jpg",
+    ".json"
+  ],
+  "subMetas": {
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "b64c4477-596b-4798-bfc3-c7e2de98d096@6c48a",
+      "displayName": "heart",
+      "id": "6c48a",
+      "name": "texture",
+      "ver": "1.0.19",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {},
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "premultiplyAlpha": false,
+        "anisotropy": 1,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "b64c4477-596b-4798-bfc3-c7e2de98d096"
+      }
+    }
+  },
+  "userData": {
+    "type": "texture",
+    "redirect": "b64c4477-596b-4798-bfc3-c7e2de98d096@6c48a",
+    "flipVertical": true
+  }
+}

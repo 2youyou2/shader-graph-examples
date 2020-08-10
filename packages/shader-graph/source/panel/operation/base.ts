@@ -45,6 +45,7 @@ export class ShaderNode {
     isMasterNode = false;
     isPropertyNode = false;
     concretePrecisionType = ConcretePrecisionType.Min;
+    fixedConcretePrecision = 0;
 
     // subgraphNode: SubGraphNode | null = null;
 
@@ -73,6 +74,11 @@ export class ShaderNode {
     }
 
     calcConcretePrecision () {
+        if (this.fixedConcretePrecision > 0) {
+            this.slots.forEach(slot => {
+                slot._concretePrecision = this.fixedConcretePrecision;
+            })
+        }
         if (this.concretePrecisionType !== ConcretePrecisionType.Fixed) {
             let finalPrecision: number = 1;
             if (this.concretePrecisionType === ConcretePrecisionType.Min) {

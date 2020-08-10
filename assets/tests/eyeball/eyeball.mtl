@@ -1,0 +1,56 @@
+{
+  "__type__": "cc.Material",
+  "_name": "",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "bed0131c-7def-4cb1-91ab-9601d040e1f7"
+  },
+  "_techIdx": 0,
+  "_defines": [
+    {}
+  ],
+  "_states": [
+    {
+      "blendState": {
+        "targets": [
+          {}
+        ]
+      },
+      "depthStencilState": {},
+      "rasterizerState": {}
+    }
+  ],
+  "_props": [
+    {
+      "Iris_Texture": {
+        "__uuid__": "933ed185-a1be-478f-b177-ffb7753573ff@6c48a"
+      },
+      "Pupil_Texture": {
+        "__uuid__": "b64c4477-596b-4798-bfc3-c7e2de98d096@6c48a"
+      },
+      "Glint_Texture": {
+        "__uuid__": "3a24aee4-1e1c-4d04-bf7d-29d1b8057faa@6c48a"
+      },
+      "Iris_Color_Outer": {
+        "__type__": "cc.Color",
+        "r": 209,
+        "g": 59,
+        "b": 59,
+        "a": 0
+      },
+      "Pupil_Color_Outer": {
+        "__type__": "cc.Color",
+        "r": 233,
+        "g": 22,
+        "b": 22,
+        "a": 0
+      },
+      "Iris_Edge_Width": 0.1,
+      "Pupil_Radius": 0.1,
+      "Pupil_Texture_Scale": 0.2,
+      "Glint_Scale": 1.1,
+      "Speed": 0.3
+    }
+  ]
+}

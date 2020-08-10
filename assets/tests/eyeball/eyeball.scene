@@ -23,6 +23,9 @@
       },
       {
         "__id__": 7
+      },
+      {
+        "__id__": 10
       }
     ],
     "_active": true,
@@ -30,9 +33,9 @@
     "_prefab": null,
     "autoReleaseAssets": false,
     "_globals": {
-      "__id__": 10
+      "__id__": 13
     },
-    "_id": "178cf128-2b6d-4127-a2cd-958febbed81e"
+    "_id": "c3c97927-9c70-409b-ae80-f0ddcc1ae230"
   },
   {
     "__type__": "cc.Node",
@@ -57,10 +60,10 @@
     },
     "_lrot": {
       "__type__": "cc.Quat",
-      "x": -0.24999999999999997,
-      "y": -0.24999999999999997,
-      "z": -0.06698729810778066,
-      "w": 0.9330127018922194
+      "x": -0.31447296314411183,
+      "y": 0,
+      "z": 0,
+      "w": 0.9492664301719312
     },
     "_lscale": {
       "__type__": "cc.Vec3",
@@ -71,15 +74,15 @@
     "_layer": 1073741824,
     "_euler": {
       "__type__": "cc.Vec3",
-      "x": -30,
-      "y": -30,
+      "x": -36.658,
+      "y": 0,
       "z": 0
     },
     "_id": "c0y6F5f+pAvI805TdmxIjx"
   },
   {
     "__type__": "cc.DirectionalLightComponent",
-    "_name": "",
+    "_name": "Main Light<DirectionalLightComponent>",
     "_objFlags": 0,
     "node": {
       "__id__": 2
@@ -125,7 +128,7 @@
       "__type__": "cc.Vec3",
       "x": 0,
       "y": 0,
-      "z": 1.733
+      "z": 1.927
     },
     "_lrot": {
       "__type__": "cc.Quat",
@@ -203,9 +206,10 @@
         "__id__": 8
       }
     ],
+    "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 0,
+      "x": -0.6,
       "y": 0,
       "z": 0
     },
@@ -229,7 +233,7 @@
       "y": 0,
       "z": 0
     },
-    "_id": "bf+gsJaidF3I/Odky3quE2"
+    "_id": "8cPrfyDpNOCYnigMvsvFzL"
   },
   {
     "__type__": "cc.ModelComponent",
@@ -241,7 +245,7 @@
     "_enabled": true,
     "_materials": [
       {
-        "__uuid__": "78a2628a-30fa-4f46-b593-6938e9f0b875"
+        "__uuid__": "dbd28cbd-3ad2-47ed-9cc2-0c3c7bf9981c"
       }
     ],
     "_visFlags": 0,
@@ -253,7 +257,90 @@
     },
     "_shadowCastingMode": 0,
     "_enableMorph": true,
-    "_id": "34ApGuBKVLe4dm+DlmU98R"
+    "_id": "4esxxzadZGDIdw++tA9/CO"
+  },
+  {
+    "__type__": "cc.ModelLightmapSettings",
+    "texture": null,
+    "uvParam": {
+      "__type__": "cc.Vec4",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 0
+    },
+    "_bakeable": false,
+    "_castShadow": false,
+    "_receiveShadow": false,
+    "_recieveShadow": false,
+    "_lightmapSize": 64
+  },
+  {
+    "__type__": "cc.Node",
+    "_name": "Sphere-002",
+    "_objFlags": 0,
+    "_parent": {
+      "__id__": 1
+    },
+    "_children": [],
+    "_active": true,
+    "_components": [
+      {
+        "__id__": 11
+      }
+    ],
+    "_prefab": null,
+    "_lpos": {
+      "__type__": "cc.Vec3",
+      "x": 0.6,
+      "y": 0,
+      "z": 0
+    },
+    "_lrot": {
+      "__type__": "cc.Quat",
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "w": 1
+    },
+    "_lscale": {
+      "__type__": "cc.Vec3",
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "_layer": 1073741824,
+    "_euler": {
+      "__type__": "cc.Vec3",
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "_id": "6buu6c6MVIbaBod/by6oUs"
+  },
+  {
+    "__type__": "cc.ModelComponent",
+    "_name": "Sphere<ModelComponent>",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 10
+    },
+    "_enabled": true,
+    "_materials": [
+      {
+        "__uuid__": "e3acab2a-083e-42eb-afd5-13f94843f9ba"
+      }
+    ],
+    "_visFlags": 0,
+    "lightmapSettings": {
+      "__id__": 12
+    },
+    "_mesh": {
+      "__uuid__": "1263d74c-8167-4928-91a6-4e2672411f47@17020"
+    },
+    "_shadowCastingMode": 0,
+    "_enableMorph": true,
+    "_id": "e7zYGQuehDzLFwHCeELwTo"
   },
   {
     "__type__": "cc.ModelLightmapSettings",
@@ -274,13 +361,13 @@
   {
     "__type__": "cc.SceneGlobals",
     "ambient": {
-      "__id__": 11
+      "__id__": 14
     },
     "planarShadows": {
-      "__id__": 12
+      "__id__": 15
     },
     "_skybox": {
-      "__id__": 13
+      "__id__": 16
     }
   },
   {

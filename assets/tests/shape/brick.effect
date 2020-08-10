@@ -204,22 +204,22 @@ CCProgram unlit-fs %{
     float var_90 = vec4(var_7, 0., 0.).r; // SplitNode
      // SplitNode
     float var_41 = var_38 + var_29; // AddNode
-    float var_26 = 1. / var_85; // DivideNode
+    vec4 var_26 = vec4(1., 0., 0., 0.) / vec4(var_85); // DivideNode
     float var_66 = max(var_63, 0.); // MaximumNode
-    float var_81 = -1. / var_90; // DivideNode
+    vec4 var_81 = vec4(-1., 0., 0., 0.) / vec4(var_90); // DivideNode
     float var_69 = min(var_63, 0.); // MinimumNode
     vec2 var_17 = vec2(var_41, var_30); // Vector2Node
-    float var_72 = var_26 * var_66; // MultiplyNode
-    float var_78 = var_81 * var_69; // MultiplyNode
+    vec4 var_72 = vec4(var_26) * vec4(var_66); // MultiplyNode
+    vec4 var_78 = vec4(var_81) * vec4(var_69); // MultiplyNode
     vec2 var_96 = floor(vec2(var_17)); // FloorNode
     float var_106 = vec4(var_9, 0., 0.).r; // SplitNode
     float var_107 = vec4(var_9, 0., 0.).g; // SplitNode
      // SplitNode
     vec2 var_46 = fract(vec2(var_17)); // FractionNode
-    float var_14 = var_6 + var_72; // AddNode
-    float var_75 = var_6 + var_78; // AddNode
+    vec4 var_14 = vec4(var_6) + vec4(var_72); // AddNode
+    vec4 var_75 = vec4(var_6) + vec4(var_78); // AddNode
     float var_100 = randomRange(vec2(var_96), var_106, var_107); // RandomRangeNode
-    float var_50 = rect(vec2(var_46), var_14, var_75); // RectangleNode
+    float var_50 = rect(vec2(var_46), var_14.x, var_75.x); // RectangleNode
     float var_103 = var_100 * var_50; // MultiplyNode
 
     o.rgb *= vec3(var_103);

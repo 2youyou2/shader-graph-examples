@@ -240,14 +240,14 @@ CCProgram pbr-fs %{
     float var_75 = simpleNoise(vec2(var_76), 300.); // NoiseNode
     float var_44 = var_31 * 2.; // MultiplyNode
     vec4 var_66 = vec2(-0.5, 0.5).x + (vec4(var_47) - vec2(0., 1.).x) * (vec2(-0.5, 0.5).y - vec2(-0.5, 0.5).x) / (vec2(0., 1.).y - vec2(0., 1.).x); // RemapNode
-    float var_86 = pow(var_75, 2.); // PowerNode
+    vec4 var_86 = pow(vec4(var_75), vec4(2., 2., 2., 2.)); // PowerNode
     float var_41 = var_23 + var_44; // AddNode
     vec4 var_83 = vec4(var_66) * vec4(var_86); // MultiplyNode
     float var_28 = var_41 * 200.; // MultiplyNode
-    float var_50 = var_83.x + var_22; // AddNode
+    vec4 var_50 = vec4(var_83) + vec4(var_22); // AddNode
     float var_10 = sin(var_28); // SineNode
      // PropertyNode
-    vec4 var_55 = vec4(var_50, var_23, 0., 0.); // CombineNode
+    vec4 var_55 = vec4(var_50.x, var_23, 0., 0.); // CombineNode
      // CombineNode
     float var_30 = saturate(var_10); // SaturateNode
     vec4 var_12 = texture(Texture, vec2(var_55.xy)); // SampleTexture2DNode

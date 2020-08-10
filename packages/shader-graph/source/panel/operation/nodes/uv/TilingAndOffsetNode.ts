@@ -1,6 +1,9 @@
 import { ShaderNode } from "../../base";
+import { ConcretePrecisionType } from "../../type";
 
 export default class TilingAndOffsetNode extends ShaderNode {
+    concretePrecisionType = ConcretePrecisionType.Fixed;
+    
     generateCode () {
         let UV;
         if (!this.inputSlots[0].connectSlot) {

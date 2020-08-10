@@ -225,34 +225,34 @@ CCProgram unlit-fs %{
     vec2 var_218 = floor(vec2(var_224)); // FloorNode
      // PropertyNode
     float var_175 = simpleNoise(vec2(var_218), seed); // NoiseNode
-    float var_185 = var_175 - 0.5; // SubtractNode
+    vec4 var_185 = vec4(var_175) - vec4(0.5, 0.5, 1., 1.); // SubtractNode
     vec2 var_220 = fract(vec2(var_224)); // FractionNode
-    float var_182 = 2. * var_185; // MultiplyNode
+    vec4 var_182 = vec4(2., 2., 0., 0.) * vec4(var_185); // MultiplyNode
     float var_169 = vec4(var_220, 0., 0.).r; // SplitNode
     float var_170 = vec4(var_220, 0., 0.).g; // SplitNode
      // SplitNode
-    float var_179 = fract(var_182); // FractionNode
+    vec4 var_179 = fract(vec4(var_182)); // FractionNode
     float var_164 = 1. - var_169; // MinimumNode
-    float var_157 = step(0.75, var_179); // StepNode
-    float var_151 = step(0.5, var_179); // StepNode
+    vec4 var_157 = step(vec4(0.75, 1., 1., 1.), vec4(var_179)); // StepNode
+    vec4 var_151 = step(vec4(0.5, 1., 1., 1.), vec4(var_179)); // StepNode
     vec2 var_167 = vec2(var_164, var_170); // Vector2Node
-    float var_136 = var_179; // PreviewNode
+    vec4 var_136 = vec4(var_179); // PreviewNode
     vec2 var_177 = 1. - vec2(var_220); // MinimumNode
-    float var_148 = var_151 - var_157; // SubtractNode
+    vec4 var_148 = vec4(var_151) - vec4(var_157); // SubtractNode
     vec2 var_162 = 1. - vec2(var_167); // MinimumNode
-    float var_145 = step(0.25, var_136); // StepNode
-    vec2 var_154 = vec2(var_157) * vec2(var_177); // MultiplyNode
-    vec2 var_160 = vec2(var_148) * vec2(var_162); // MultiplyNode
-    float var_142 = var_145 - var_151; // SubtractNode
-    vec2 var_134 = vec2(var_154) + vec2(var_160); // AddNode
-    vec2 var_139 = vec2(var_167) * vec2(var_142); // MultiplyNode
-    float var_122 = 1. - var_145; // MinimumNode
+    vec4 var_145 = step(vec4(0.25, 1., 1., 1.), vec4(var_136)); // StepNode
+    vec4 var_154 = vec4(var_157) * vec4(var_177, 0., 0.); // MultiplyNode
+    vec4 var_160 = vec4(var_148) * vec4(var_162, 0., 0.); // MultiplyNode
+    vec4 var_142 = vec4(var_145) - vec4(var_151); // SubtractNode
+    vec4 var_134 = vec4(var_154) + vec4(var_160); // AddNode
+    vec4 var_139 = vec4(var_167, 0., 0.) * vec4(var_142); // MultiplyNode
+    vec4 var_122 = 1. - vec4(var_145); // MinimumNode
     vec2 var_120 = vec2(var_220); // PreviewNode
-    vec2 var_131 = vec2(var_134) + vec2(var_139); // AddNode
-    vec2 var_125 = vec2(var_122) * vec2(var_120); // MultiplyNode
-    vec2 var_128 = vec2(var_131) + vec2(var_125); // AddNode
-    vec2 var_84 = vec2(var_128) - vec2(0.5, 1.); // SubtractNode
-    vec2 var_50 = vec2(var_128) - vec2(1., 0.5); // SubtractNode
+    vec4 var_131 = vec4(var_134) + vec4(var_139); // AddNode
+    vec4 var_125 = vec4(var_122) * vec4(var_120, 0., 0.); // MultiplyNode
+    vec4 var_128 = vec4(var_131) + vec4(var_125); // AddNode
+    vec4 var_84 = vec4(var_128) - vec4(0.5, 1., 1., 1.); // SubtractNode
+    vec4 var_50 = vec4(var_128) - vec4(1., 0.5, 1., 1.); // SubtractNode
     vec2 var_51 = vec2(0., 0.); // SubGraphNode
     vec2 var_52 = vec2(0.44999998807907104, 0.4000000059604645); // SubGraphNode
     vec2 var_53 = vec2(0.3499999940395355, 0.30000001192092896); // SubGraphNode
@@ -272,28 +272,28 @@ CCProgram unlit-fs %{
     float var_78 = vec4(var_52, 0., 0.).r; // SplitNode
     float var_79 = vec4(var_52, 0., 0.).g; // SplitNode
      // SplitNode
-    float var_57 = length(vec4(var_128, 0., 0.)); // LengthNode
+    float var_57 = length(vec4(var_128)); // LengthNode
     float var_73 = vec4(var_53, 0., 0.).r; // SplitNode
     float var_74 = vec4(var_53, 0., 0.).g; // SplitNode
      // SplitNode
     float var_115 = vec4(var_89, 0., 0.).r; // SplitNode
     float var_116 = vec4(var_89, 0., 0.).g; // SplitNode
      // SplitNode
-    float var_94 = length(vec4(var_128, 0., 0.)); // LengthNode
+    float var_94 = length(vec4(var_128)); // LengthNode
     float var_110 = vec4(var_90, 0., 0.).r; // SplitNode
     float var_111 = vec4(var_90, 0., 0.).g; // SplitNode
      // SplitNode
     float var_36 = vec4(var_10, 0., 0.).r; // SplitNode
     float var_37 = vec4(var_10, 0., 0.).g; // SplitNode
      // SplitNode
-    float var_15 = length(vec4(var_84, 0., 0.)); // LengthNode
+    float var_15 = length(vec4(var_84)); // LengthNode
     float var_31 = vec4(var_11, 0., 0.).r; // SplitNode
     float var_32 = vec4(var_11, 0., 0.).g; // SplitNode
      // SplitNode
     float var_213 = vec4(var_187, 0., 0.).r; // SplitNode
     float var_214 = vec4(var_187, 0., 0.).g; // SplitNode
      // SplitNode
-    float var_192 = length(vec4(var_50, 0., 0.)); // LengthNode
+    float var_192 = length(vec4(var_50)); // LengthNode
     float var_208 = vec4(var_188, 0., 0.).r; // SplitNode
     float var_209 = vec4(var_188, 0., 0.).g; // SplitNode
      // SplitNode
