@@ -2,7 +2,6 @@
 
 import fs, { readFileSync } from 'fs';
 import { join } from 'path';
-const profile = Editor.Profile.load('local://packages/shader-graph.json');
 
 const Vue = require('vue/dist/vue.js');
 Vue.config.productionTip = false;
@@ -31,12 +30,8 @@ export async function ready(tab: string, params: any) {
 
     const manager = require('./components/manager');
     manager.el = panel.$.shadergraph;
-    const data = profile.get('shader-graph');
-    if(data) {
-        for(let key in data) {
-            manager.data[key] = data[key];
-        }
-    }
+    manager.init();
+   
     $vm = new Vue(manager);
 }
 

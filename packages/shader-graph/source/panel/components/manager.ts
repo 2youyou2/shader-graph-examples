@@ -20,11 +20,51 @@ export const computed = {};
 export const components = {
 };
 
+function convertToProjectRelative (absolutePath: string) {
+    if (path.contains(projectPath, absolutePath)) {
+        absolutePath = 'db://project/' + path.relative(projectPath, absolutePath)
+    }
+    return absolutePath;
+}
+
+function convertToProjectAbsolute (relativePath: string) {
+    if (relativePath.startsWith('db://project/')) {
+        relativePath = relativePath.replace('db://project/', '');
+        relativePath = path.join(projectPath, relativePath);
+    }
+    return relativePath;
+}
+
+export function init () {
+    const storage = profile.get('shader-graph');
+    if (storage) {
+        for (let key in storage) {
+            data[key] = storage[key];
+        }
+    }
+
+    if (data.directories) {
+        data.directories.forEach(d => {
+            d.src = convertToProjectAbsolute(d.src);
+            d.dst = convertToProjectAbsolute(d.dst);
+        })
+    }
+}
+
 export const methods = {
     saveEdit () {
         const vm: any = this;
+        let directories = vm.directories.map(d => {
+            d = Object.assign({}, d);
+
+            d.src = convertToProjectRelative(d.src);
+            d.dst = convertToProjectRelative(d.dst);
+
+            return d;
+        });
+
         profile.set('shader-graph', {
-            directories: vm.directories,
+            directories: directories,
         });
         profile.save();
     },
@@ -32,7 +72,7 @@ export const methods = {
     onGenerate () {
         data.directories.forEach(data => {
             if (!data.enabled) return;
-            
+
             let destDir = data.dst;
 
             let graphDir = data.src;
@@ -72,7 +112,7 @@ export const methods = {
         })
 
         this.saveEdit();
-    }
+    },
 };
 
 
