@@ -1,6 +1,6 @@
 # Shader Graph Examples
 
-Examples for https://github.com/2youyou2/shader-graph
+Examples for https://github.com/2youyou2/shader-graph based on Cocos Creator 3D v1.1.1.
 
 # Install
 
