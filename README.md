@@ -1,5 +1,7 @@
 # Shader Graph Examples
 
+Examples for https://github.com/2youyou2/shader-graph
+
 # Install
 
 1. git clone git@github.com:2youyou2/shader-graph-examples.git
