@@ -2,6 +2,8 @@
 
 Examples for https://github.com/2youyou2/shader-graph based on Cocos Creator 3D v1.1.1.
 
+The origin example ***.ShaderGraph files** are in the **project/tests** folder。
+
 # Install
 
 1. git clone git@github.com:2youyou2/shader-graph-examples.git
