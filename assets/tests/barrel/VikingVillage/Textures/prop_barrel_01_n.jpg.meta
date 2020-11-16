@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.18",
+  "ver": "1.0.21",
   "importer": "image",
   "imported": true,
   "uuid": "eca5eb84-ae21-4dd7-b92e-0755a3b2bbfb",
@@ -14,7 +14,7 @@
       "displayName": "prop_barrel_01_n",
       "id": "6c48a",
       "name": "texture",
-      "ver": "1.0.19",
+      "ver": "1.0.20",
       "imported": true,
       "files": [
         ".json"
@@ -35,6 +35,7 @@
   },
   "userData": {
     "type": "texture",
-    "redirect": "eca5eb84-ae21-4dd7-b92e-0755a3b2bbfb@6c48a"
+    "redirect": "eca5eb84-ae21-4dd7-b92e-0755a3b2bbfb@6c48a",
+    "hasAlpha": false
   }
 }

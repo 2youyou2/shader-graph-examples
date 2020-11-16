@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.18",
+  "ver": "1.0.21",
   "importer": "image",
   "imported": true,
   "uuid": "12d71723-1e37-4e05-af5d-e5c33c7e01b1",
@@ -14,7 +14,7 @@
       "displayName": "gebco_08_rev_bath",
       "id": "6c48a",
       "name": "texture",
-      "ver": "1.0.19",
+      "ver": "1.0.20",
       "imported": true,
       "files": [
         ".json"
@@ -35,6 +35,7 @@
   },
   "userData": {
     "type": "texture",
-    "redirect": "12d71723-1e37-4e05-af5d-e5c33c7e01b1@6c48a"
+    "redirect": "12d71723-1e37-4e05-af5d-e5c33c7e01b1@6c48a",
+    "hasAlpha": true
   }
 }

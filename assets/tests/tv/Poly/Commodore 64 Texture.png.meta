@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.18",
+  "ver": "1.0.21",
   "importer": "image",
   "imported": true,
   "uuid": "94d6ec2e-7188-477e-9139-0c4acecc2347",
@@ -14,7 +14,7 @@
       "displayName": "Commodore 64 Texture",
       "id": "6c48a",
       "name": "texture",
-      "ver": "1.0.19",
+      "ver": "1.0.20",
       "imported": true,
       "files": [
         ".json"
@@ -35,6 +35,7 @@
   },
   "userData": {
     "type": "texture",
-    "redirect": "94d6ec2e-7188-477e-9139-0c4acecc2347@6c48a"
+    "redirect": "94d6ec2e-7188-477e-9139-0c4acecc2347@6c48a",
+    "hasAlpha": true
   }
 }

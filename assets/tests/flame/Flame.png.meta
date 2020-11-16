@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.18",
+  "ver": "1.0.21",
   "importer": "image",
   "imported": true,
   "uuid": "0dca59f9-0cc8-4181-b52b-540b0072080c",
@@ -14,7 +14,7 @@
       "displayName": "Flame",
       "id": "6c48a",
       "name": "texture",
-      "ver": "1.0.19",
+      "ver": "1.0.20",
       "imported": true,
       "files": [
         ".json"
@@ -35,6 +35,7 @@
   },
   "userData": {
     "type": "texture",
-    "redirect": "0dca59f9-0cc8-4181-b52b-540b0072080c@6c48a"
+    "redirect": "0dca59f9-0cc8-4181-b52b-540b0072080c@6c48a",
+    "hasAlpha": false
   }
 }

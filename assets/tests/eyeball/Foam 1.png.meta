@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.18",
+  "ver": "1.0.21",
   "importer": "image",
   "imported": true,
   "uuid": "6c1a4b59-a647-4a71-8639-08d825f63ca7",
@@ -14,7 +14,7 @@
       "displayName": "Foam 1",
       "id": "6c48a",
       "name": "texture",
-      "ver": "1.0.19",
+      "ver": "1.0.20",
       "imported": true,
       "files": [
         ".json"
@@ -35,6 +35,7 @@
   },
   "userData": {
     "type": "texture",
-    "redirect": "6c1a4b59-a647-4a71-8639-08d825f63ca7@6c48a"
+    "redirect": "6c1a4b59-a647-4a71-8639-08d825f63ca7@6c48a",
+    "hasAlpha": true
   }
 }

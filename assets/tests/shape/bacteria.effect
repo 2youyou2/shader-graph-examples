@@ -171,7 +171,6 @@ CCProgram unlit-vs %{
 
     
 
-  in vec2 a_texCoord;
   out vec2 v_uv;
 
   vec4 vert () {

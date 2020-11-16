@@ -1,5 +1,5 @@
 {
-  "ver": "1.3.21",
+  "ver": "2.0.2",
   "importer": "fbx",
   "imported": true,
   "uuid": "fafa8012-4a7e-434f-b680-761661b6230d",
@@ -14,8 +14,8 @@
       "ver": "1.1.0",
       "imported": true,
       "files": [
-        ".json",
-        ".bin"
+        ".bin",
+        ".json"
       ],
       "subMetas": {},
       "userData": {
@@ -28,7 +28,7 @@
       "displayName": "",
       "id": "03ca5",
       "name": "Commodore 64 Texture.png.image",
-      "ver": "1.0.2",
+      "ver": "1.0.3",
       "imported": true,
       "files": [
         ".png",
@@ -45,7 +45,7 @@
       "displayName": "",
       "id": "4f17a",
       "name": "DiffuseColor_Texture.texture",
-      "ver": "1.0.19",
+      "ver": "1.0.20",
       "imported": true,
       "files": [
         ".json"
@@ -118,6 +118,7 @@
       "scenes": [
         "fafa8012-4a7e-434f-b680-761661b6230d@eeab7"
       ]
-    }
+    },
+    "legacyFbxImporter": true
   }
 }

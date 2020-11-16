@@ -1,5 +1,5 @@
 {
-  "ver": "1.3.21",
+  "ver": "2.0.2",
   "importer": "fbx",
   "imported": true,
   "uuid": "62938559-eaeb-4024-acd1-2e1294309a05",
@@ -14,8 +14,8 @@
       "ver": "1.1.0",
       "imported": true,
       "files": [
-        ".json",
-        ".bin"
+        ".bin",
+        ".json"
       ],
       "subMetas": {},
       "userData": {
@@ -70,6 +70,7 @@
       "scenes": [
         "62938559-eaeb-4024-acd1-2e1294309a05@07121"
       ]
-    }
+    },
+    "legacyFbxImporter": true
   }
 }

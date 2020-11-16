@@ -66,7 +66,7 @@ CCProgram pbr-vs %{
   out vec3 v_tangent;
   out vec3 v_bitangent;
 
-  in vec2 a_texCoord;
+  
   out vec2 v_uv;
   in vec2 a_texCoord1;
   out vec2 v_uv1;

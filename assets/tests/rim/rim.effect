@@ -64,7 +64,7 @@ CCProgram pbr-vs %{
   in vec3 a_color;
   out vec3 v_color;
 
-  in vec2 a_texCoord;
+  
   out vec2 v_uv;
   in vec2 a_texCoord1;
   out vec2 v_uv1;
