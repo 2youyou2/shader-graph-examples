@@ -1,6 +1,3 @@
-[submodule "packages/shader-graph"]
-	path = packages/shader-graph
-	url = git@github.com:2youyou2/shader-graph.git
 [submodule "extensions/shader-graph"]
 	path = extensions/shader-graph
 	url = git@github.com:2youyou2/shader-graph.git
