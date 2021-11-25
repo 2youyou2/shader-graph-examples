@@ -1,8 +1,11 @@
 {
   "name": "shader-graph",
   "type": "3d",
-  "version": "3.0.0",
+  "version": "3.4.0",
   "scripts": {},
   "dependencies": {},
-  "uuid": "158fd149-1d86-484a-af59-2dc724b34e71"
+  "uuid": "158fd149-1d86-484a-af59-2dc724b34e71",
+  "creator": {
+    "version": "3.4.0"
+  }
 }

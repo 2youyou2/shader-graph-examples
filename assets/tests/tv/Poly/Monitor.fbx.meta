@@ -1,5 +1,5 @@
 {
-  "ver": "2.0.2",
+  "ver": "2.1.10",
   "importer": "fbx",
   "imported": true,
   "uuid": "fafa8012-4a7e-434f-b680-761661b6230d",
@@ -45,7 +45,7 @@
       "displayName": "",
       "id": "4f17a",
       "name": "DiffuseColor_Texture.texture",
-      "ver": "1.0.20",
+      "ver": "1.0.21",
       "imported": true,
       "files": [
         ".json"
@@ -58,7 +58,7 @@
         "magfilter": "linear",
         "mipfilter": "none",
         "premultiplyAlpha": false,
-        "anisotropy": 1,
+        "anisotropy": 0,
         "isUuid": true,
         "imageUuidOrDatabaseUri": "fafa8012-4a7e-434f-b680-761661b6230d@03ca5"
       }
@@ -85,7 +85,7 @@
       "displayName": "",
       "id": "eeab7",
       "name": "Monitor.prefab",
-      "ver": "1.0.11",
+      "ver": "1.0.12",
       "imported": true,
       "files": [
         ".json"

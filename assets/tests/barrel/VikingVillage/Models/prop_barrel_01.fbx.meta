@@ -1,5 +1,5 @@
 {
-  "ver": "2.0.2",
+  "ver": "2.1.10",
   "importer": "fbx",
   "imported": true,
   "uuid": "4fbd941d-cd66-4f6d-bb4d-403454948ce6",
@@ -44,7 +44,7 @@
       "displayName": "",
       "id": "d5d36",
       "name": "prop_barrel_01.prefab",
-      "ver": "1.0.11",
+      "ver": "1.0.12",
       "imported": true,
       "files": [
         ".json"

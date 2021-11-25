@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.21",
+  "ver": "1.0.22",
   "importer": "image",
   "imported": true,
   "uuid": "f88b5bc1-d698-415e-a73f-f406408bc96f",
@@ -14,7 +14,7 @@
       "displayName": "daytime",
       "id": "b47c0",
       "name": "textureCube",
-      "ver": "1.0.9",
+      "ver": "1.0.10",
       "imported": true,
       "files": [
         ".json"
