@@ -2,10 +2,20 @@
   "name": "shader-graph",
   "type": "3d",
   "version": "3.4.0",
-  "scripts": {},
-  "dependencies": {},
+  "dependencies": {
+    "repo-helper": "github:2youyou2/repo-helper#0.0.7"
+  },
   "uuid": "158fd149-1d86-484a-af59-2dc724b34e71",
   "creator": {
     "version": "3.4.0"
+  },
+  "repos": {
+    "extensions/shader-graph": {
+      "branch": "v3.4",
+      "url": "git@github.com:2youyou2/shader-graph.git"
+    }
+  },
+  "scripts": {
+    "postinstall": "repo-helper && cd extensions/shader-graph && npm install"
   }
 }
